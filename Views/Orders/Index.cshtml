@@ -1,0 +1,98 @@
+﻿@model IEnumerable<Online_market.Models.Order>
+@using Online_market.Services
+@inject IImageService imageService
+@{
+    ViewData["Title"] = "Customer Orders";
+}
+<br />
+<br />
+<br />
+<br />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="orderTable">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.TrackingNumber)
+                            </th>
+                            <th>
+                                Customer Name
+                            </th>
+                            <th>
+                                Phone Number
+                            </th>
+                            <th>
+                                Address
+                            </th>
+                            <th>Order Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+
+                            <tr>
+                                <td>
+                                    <form id="goToOrder" asp-action="TrackOrderDetails" method="post">
+                                        <input name="TrackingNumber" value="@item.TrackingNumber" type="hidden" />
+                                    </form>
+                                    <a class="btn btn-primary" href="javascript:document.getElementById('goToOrder').submit()">View Order</a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TrackingNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CustomUser.FullName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CustomUser.PhoneNumber)
+                                </td>
+                                <td>
+                                    @item.CustomUser.Street | @item.CustomUser.City | @item.CustomUser.State | @item.CustomUser.Zipcode
+                                </td>
+                                <td>
+                                    @item.OrderStatus.Description
+                                </td>
+                                <td>@item.Created.ToString("dd MMMM yyyy - hh:mm tt")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+           
+        </div>
+    </div>
+  
+</div>
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+

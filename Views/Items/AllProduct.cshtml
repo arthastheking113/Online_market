@@ -1,0 +1,112 @@
+﻿@model IEnumerable<Online_market.Models.Item>
+@using Online_market.Services
+@inject IImageService imageService
+@using Online_market.Data
+@inject ApplicationDbContext _context 
+@{
+    ViewData["Title"] = "All Products";
+}
+
+
+<div class="ps-products-wrap pt-80 pb-80">
+    <div class="ps-products" data-mh="product-listing">
+        <div class="ps-product__columns">
+
+            @foreach (var item in Model)
+            {
+                <div class="ps-product__column">
+                    <div class="ps-shoe mb-30">
+                        <div class="ps-shoe__thumbnail">
+                            @if (item.ItemStatus.Name != "Normal")
+                            {
+                                <div class="ps-badge"><span>@item.ItemStatus.Name</span></div>
+                            }
+                            @if (item.ItemSaleOff.Name != "None")
+                            {
+                                <div class="ps-badge ps-badge--sale ps-badge--2nd"><span>@item.ItemSaleOff.Name</span></div>
+
+                            }
+                            <img src="@imageService.DecodeFile(item.ImageData,item.ContentType)" alt=""><a class="ps-shoe__overlay" asp-controller="Items" asp-action="Details" asp-route-slug="@item.Slug"></a>
+                        </div>
+                        <div class="ps-shoe__content">
+                            <div class="ps-shoe__variants">
+                                <div class="ps-shoe__variant normal">
+                                    @if (item.Attachments.Count != 0)
+                                    {
+                                        <img src="@imageService.DecodeFile(item.ImageData,item.ContentType)" alt="">
+                                    }
+                                    @foreach (var image in item.Attachments)
+                                    {
+                                        if (_context.ItemAttachmentTypes.FirstOrDefault(i => i.Id == image.ItemAttachmentTypeId).Name == "OutSide")
+                                        {
+                                            <img src="@imageService.DecodeFile(image.ImageData,image.ContentType)" alt="">
+                                        }
+                                    }
+                                </div>
+                                @if (item.RateValue <= 1)
+                                {
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                }
+                                else if (item.RateValue > 1 && item.RateValue <= 2)
+                                {
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                }
+                                else if (item.RateValue > 2 && item.RateValue <= 3)
+                                {
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                }
+                                else if (item.RateValue > 3 && item.RateValue <= 4)
+                                {
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star"></span>
+                                }
+                                else
+                                {
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                    <span class="fa fa-star checked"></span>
+                                }
+                            </div>
+                            <div class="ps-shoe__detail">
+                                <a class="ps-shoe__name" asp-controller="Items" asp-action="Details"  asp-route-slug="@item.Slug">@item.Name</a>
+                                <p class="ps-shoe__categories"><a asp-controller="Items" asp-action="Details"  asp-route-slug="@item.Slug" >@item.Category.Name</a></p>
+
+                                @if (item.ItemSaleOff.Name != "None")
+                                {
+                                    <span class="ps-shoe__price">
+                                        <del>$@item.Price</del>$@item.ListPrice(_context, item.Price, item.ItemSaleOffId)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="ps-shoe__price"> $ @item.Price</span>
+                                }
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+

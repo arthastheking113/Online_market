@@ -1,0 +1,424 @@
+﻿@model Online_market.Models.Item
+@using Online_market.Services
+@inject IImageService imageService
+@using Online_market.Data
+@inject ApplicationDbContext _context
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<CustomUser> _userManager
+@inject SignInManager<CustomUser> _signInManager
+@inject ISlugService _slugService 
+@{
+    ViewData["Title"] = "Details";
+}
+
+
+
+<div class="test">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ps-product--detail pt-60">
+    <div class="ps-container">
+        <div class="row">
+            <div class="col-lg-10 col-md-12 col-lg-offset-1">
+                <div class="ps-product__thumbnail">
+                    <div class="ps-product__preview">
+                        <div class="ps-product__variants">
+
+                            @foreach (var item in Model.Attachments)
+                            {
+                                if (_context.ItemAttachmentTypes.FirstOrDefault(i => i.Id == item.ItemAttachmentTypeId).Name == "InSide")
+                                {
+                                    <div class="item"><img src="@imageService.DecodeFile(item.ImageData,item.ContentType)" alt=""></div>
+                                }
+                            }
+                            @if (Model.Attachments.Count == 0)
+                            {
+                                <div class="item"><img src="~/img/shoe-detail/3.jpg" alt=""></div>
+                            }
+
+                        </div>
+                        @foreach (var item in Model.Attachments)
+                        {
+                            if (_context.ItemAttachmentTypes.FirstOrDefault(i => i.Id == item.ItemAttachmentTypeId).Name == "VideoLink")
+                            {
+                                <a class="popup-youtube ps-product__video" href="@item.Link"><img src="@imageService.DecodeFile(item.ImageData,item.ContentType)" alt=""><i class="fa fa-play"></i></a>
+                            }
+                        }
+                    </div>
+                    <div class="ps-product__image">
+                        @foreach (var item in Model.Attachments)
+                        {
+                            if (_context.ItemAttachmentTypes.FirstOrDefault(i => i.Id == item.ItemAttachmentTypeId).Name == "InSide")
+                            {
+                                <div class="item"><img class="zoom" src="@imageService.DecodeFile(item.ImageData,item.ContentType)" alt="" data-zoom-image="@imageService.DecodeFile(item.ImageData,item.ContentType)"></div>
+                            }
+                        }
+                        @if (Model.Attachments.Count == 0)
+                        {
+                            <div class="item"><img class="zoom" src="~/img/shoe-detail/3.jpg" alt="" data-zoom-image="~/img/shoe-detail/3.jpg"></div>
+                        }
+                    </div>
+                </div>
+                <div class="ps-product__thumbnail--mobile">
+                    <div class="ps-product__main-img"><img src="~/img/shoe-detail/1.jpg" alt=""></div>
+                    <div class="ps-product__preview owl-slider" data-owl-auto="true" data-owl-loop="true" data-owl-speed="5000" data-owl-gap="20" data-owl-nav="true" data-owl-dots="false" data-owl-item="3" data-owl-item-xs="3" data-owl-item-sm="3" data-owl-item-md="3" data-owl-item-lg="3" data-owl-duration="1000" data-owl-mousedrag="on"><img src="~/img/shoe-detail/1.jpg" alt=""><img src="~/img/shoe-detail/2.jpg" alt=""><img src="~/img/shoe-detail/3.jpg" alt=""></div>
+                </div>
+                <div class="ps-product__info">
+                    <div class="ps-product__rating">
+                        @if (Model.RateValue <= 1)
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                        }
+                        else if (Model.RateValue > 1 && Model.RateValue <= 2)
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                        }
+                        else if (Model.RateValue > 2 && Model.RateValue <= 3)
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                        }
+                        else if (Model.RateValue > 3 && Model.RateValue <= 4)
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star"></span>
+                        }
+                        else
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                        }
+                        @if (@Model.Comments.Count != 0)
+                        {
+                            <a href="#commentSection">(Read all @Model.Comments.Count reviews)</a>
+                        }
+                    </div>
+                    <h1 id="Name">@Model.Name</h1>
+                    <p class="ps-product__category"><a asp-controller="Categories" asp-action="CategoryIndex" asp-route-slug="@_slugService.URLFriendly(Model.Category.Name)"> @Model.Category.Name</a></p>
+                    @if (Model.ItemSaleOff.Name != "None")
+                    {
+                        <h3 class="ps-product__price" id="Price">$ @Model.Price <del>$ @Model.ListPrice(_context, Model.Price, Model.ItemSaleOffId)</del></h3>
+
+                    }
+                    else
+                    {
+                        <h3 class="ps-product__price" id="Price">$ @Model.Price </h3>
+                    }
+                    <div class="ps-product__block ps-product__quickview">
+                        <h4>QUICK REVIEW</h4>
+                        <p>@Model.Description</p>
+                    </div>
+                    <form asp-controller="Carts" asp-action="AddItem" id="addToCartForm">
+                        <input type="hidden" name="ItemId" value="@Model.Id" />
+
+                        <div class="ps-product__block ps-product__size">
+                            <h4>QUANTITY</h4>
+                            <div class="form-group--number">
+                                <button type="button" id="minus-button-@Model.Id" class="minus"><span>-</span></button>
+                                <input id="quantity-@Model.Id" name="quantity" class="form-control" type="number" readonly value="1">
+                                <button type="button" id="plus-button-@Model.Id" class="plus"><span>+</span></button>
+
+                            </div>
+                        </div>
+                        <div class="ps-product__shopping">
+                            <button class="ps-btn mb-10" type="button" id="AddToCart-button-@Model.Id">Add to cart<i class="ps-icon-next"></i></button>
+                            <a class="ps-btn mb-10" asp-controller="Items" asp-action="AllProduct" style="background-color:gray;">Back To List<i class="ps-icon-arrow-right"></i></a>
+                        </div>
+
+                    </form>
+                    @if (_signInManager.IsSignedIn(User) && User.IsInRole("Administrator"))
+                    {
+                        <a class="ps-btn mb-10" asp-controller="Items" asp-action="Edit" asp-route-id="@Model.Id" style="background-color:deepskyblue;">Edit</a>
+                        <form asp-action="Create" asp-controller="ItemAttachments" enctype="multipart/form-data" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <input type="hidden" asp-for="@Model.Id" name="ItemId">
+                            <input name="Link" type="text" class="form-control" placeholder="Youtube Link if a Video...">
+                            <select name="ItemAttachmentTypeId" class="form-control" asp-items="ViewBag.AttachmentType"></select>
+                            <div class="media-body ml-3 ">
+                                <label class="ps-btn mb-10">
+                                    Upload File
+                                    <input name="image" type="file" required />
+                                </label>
+                            </div>
+                            <div class="row">
+                                <div class="col text-center">
+                                    <button type="submit" class="btn btn-outline-secondary btn-block md-btn-flat">Upload</button>
+                                </div>
+                            </div>
+                        </form>
+                    }
+
+
+                    <script>
+                            function plusOne() {
+                                let quantity = parseFloat(document.getElementById('quantity-@Model.Id').value) + 1;
+                                document.getElementById('quantity-@Model.Id').value = quantity;
+                            };
+                            function minusOne() {
+                                let quantity = parseFloat(document.getElementById('quantity-@Model.Id').value) - 1;
+                                if (quantity >= 1) {
+                                    document.getElementById('quantity-@Model.Id').value = quantity;
+                                }
+
+                            };
+                            function AddItem() {
+
+                                Swal.fire({
+                                    position: 'center',
+                                    icon: 'success',
+                                    title: 'Item has been added to your cart',
+                                    showConfirmButton: false,
+                                    timer: 1200
+                                })
+                                setTimeout(function () {
+                                    document.getElementById("addToCartForm").submit();
+                                    }, 1000);
+                            };
+
+                            document.getElementById('plus-button-@Model.Id').addEventListener('click', plusOne)
+                            document.getElementById('minus-button-@Model.Id').addEventListener('click', minusOne)
+                            document.getElementById('AddToCart-button-@Model.Id').addEventListener('click', AddItem)
+                    </script>
+                </div>
+                <div class="clearfix"></div>
+                <div class="ps-product__content mt-50">
+                    <ul class="tab-list" role="tablist">
+                        <li class="active"><a href="#tab_01" aria-controls="tab_01" role="tab" data-toggle="tab">Overview</a></li>
+                    </ul>
+                </div>
+                <div class="tab-content mb-60">
+                    <div class="tab-pane active" role="tabpanel" id="tab_01">
+                        <p>@Model.Description</p>
+                        <p>@Html.Raw(Model.Content)</p>
+                    </div>
+                </div>
+                <div class="ps-product__content mt-50">
+                    <ul class="tab-list" role="tablist">
+                        <li class="active"><a href="#tab_02" aria-controls="tab_02" role="tab" data-toggle="tab">Review</a></li>
+                    </ul>
+                </div>
+                <div class="tab-content mb-60" id="commentSection">
+                    <div class="tab-pane active" role="tabpanel" id="tab_02">
+                        <p class="mb-20">@Model.Comments.Count review for <strong>@Model.Name</strong></p>
+                        <form class="ps-product__review" asp-action="Create" asp-controller="Comments" method="post">
+                            <input type="hidden" name="ItemId" value="@Model.Id" />
+                            <h4>ADD YOUR REVIEW</h4>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 ">
+                                    <div class="form-group">
+                                        <label>Your rating<span></span></label>
+                                        <select class="ps-rating" name="RateId">
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option selected value="5">5</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
+                                    <div class="form-group">
+                                        <label>Your Review:</label>
+                                        <textarea id="UserComment" required name="Content" class="form-control" rows="6" placeholder="What do you think about this product?"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="ps-btn ps-btn--sm">Submit<i class="ps-icon-next"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        @foreach (var comment in Model.Comments)
+                        {
+                            var user = await _userManager.FindByIdAsync(comment.CustomUserId);
+                            var rate_value = _context.Rate.FirstOrDefault(r => r.Id == comment.RateId).Value;
+                            <div class="ps-review">
+
+                                <div class="ps-review__thumbnail"><img src="@imageService.DecodeFile(user.ImageData,user.ContentType)" alt=""></div>
+                                <div class="ps-review__content">
+                                    <header>
+                                        @if (rate_value <= 1)
+                                        {
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star"></span>
+                                            <span class="fa fa-star"></span>
+                                            <span class="fa fa-star"></span>
+                                            <span class="fa fa-star"></span>
+                                        }
+                                        else if (rate_value > 1 && rate_value <= 2)
+                                        {
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star"></span>
+                                            <span class="fa fa-star"></span>
+                                            <span class="fa fa-star"></span>
+                                        }
+                                        else if (rate_value > 2 && rate_value <= 3)
+                                        {
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star"></span>
+                                            <span class="fa fa-star"></span>
+                                        }
+                                        else if (rate_value > 3 && rate_value <= 4)
+                                        {
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star"></span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                            <span class="fa fa-star checked"></span>
+                                        }
+                                        <p>By<a href=""> @comment.CustomUser.FullName</a> - @comment.Date</p>
+                                    </header>
+                                    <p>@comment.Content</p>
+                                </div>
+                            </div>
+                            <hr />
+                        }
+                        <hr />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ps-section ps-section--top-sales ps-owl-root pt-40 pb-80">
+    <div class="ps-container">
+        <div class="ps-section__header mb-50">
+            <div class="row">
+                <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12 ">
+                    <h3 class="ps-section__title" data-mask="Related item">- YOU MIGHT ALSO LIKE</h3>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 ">
+                    <div class="ps-owl-actions"><a class="ps-prev" href="#"><i class="ps-icon-arrow-right"></i>Prev</a><a class="ps-next" href="#">Next<i class="ps-icon-arrow-left"></i></a></div>
+                </div>
+            </div>
+        </div>
+        <div class="ps-section__content">
+            <div class="ps-owl--colection owl-slider" data-owl-auto="true" data-owl-loop="true" data-owl-speed="5000" data-owl-gap="30" data-owl-nav="false" data-owl-dots="false" data-owl-item="4" data-owl-item-xs="1" data-owl-item-sm="2" data-owl-item-md="3" data-owl-item-lg="4" data-owl-duration="1000" data-owl-mousedrag="on">
+                @{
+                    var AllProductList = _context.Item.ToList().OrderBy(a => Guid.NewGuid()).ToList();
+                }
+                @foreach (var item in AllProductList)
+                {
+                    <div class="ps-shoes--carousel">
+                        <div class="ps-shoe">
+                            <div class="ps-shoe__thumbnail">
+                                @if (item.ItemStatusId != _context.ItemStatus.FirstOrDefault(i => i.Name == "Normal").Id)
+                                {
+                                    <div class="ps-badge"><span>@((_context.ItemStatus.FirstOrDefault(i => i.Id == item.ItemStatusId)).Name)</span></div>
+                                }
+                                @if (item.ItemSaleOffId != _context.ItemSaleOff.FirstOrDefault(i => i.Name == "None").Id)
+                                {
+                                    <div class="ps-badge ps-badge--sale ps-badge--2nd"><span>@(_context.ItemSaleOff.FirstOrDefault(i => i.Id == item.ItemSaleOffId).Name)</span></div>
+                                }
+                                <img src="@imageService.DecodeFile(item.ImageData,item.ContentType)" alt=""><a class="ps-shoe__overlay" asp-controller="Items" asp-action="Details" asp-route-slug="@item.Slug"></a>
+                            </div>
+                            <div class="ps-shoe__content">
+                                <div class="ps-shoe__variants">
+                                    <div class="ps-shoe__variant normal">
+                                        @foreach (var image in item.Attachments)
+                                        {
+                                            if (_context.ItemAttachmentTypes.FirstOrDefault(i => i.Id == image.ItemAttachmentTypeId).Name == "OutSide")
+                                            {
+                                                <img src="@imageService.DecodeFile(item.ImageData,item.ContentType)" alt="">
+                                            }
+                                        }
+                                    </div>
+                                    @if (item.RateValue <= 1)
+                                    {
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star"></span>
+                                        <span class="fa fa-star"></span>
+                                        <span class="fa fa-star"></span>
+                                        <span class="fa fa-star"></span>
+                                    }
+                                    else if (item.RateValue > 1 && item.RateValue <= 2)
+                                    {
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star"></span>
+                                        <span class="fa fa-star"></span>
+                                        <span class="fa fa-star"></span>
+                                    }
+                                    else if (item.RateValue > 2 && item.RateValue <= 3)
+                                    {
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star"></span>
+                                        <span class="fa fa-star"></span>
+                                    }
+                                    else if (item.RateValue > 3 && item.RateValue <= 4)
+                                    {
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star"></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                        <span class="fa fa-star checked"></span>
+                                    }
+                                </div>
+                                <div class="ps-shoe__detail">
+                                    <a class="ps-shoe__name" href="product-detai.html">@item.Name</a>
+                                    <p class="ps-shoe__categories"><a href="#">@((_context.Category.FirstOrDefault(i => i.Id == item.CategoryId)).Name)</a></p>
+                                    @if (item.ItemSaleOffId != _context.ItemSaleOff.FirstOrDefault(i => i.Name == "None").Id)
+                                    {
+                                        <span class="ps-shoe__price">
+                                            <del>$@item.Price</del>$@item.ListPrice(_context, item.Price, item.ItemSaleOffId)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ps-shoe__price"> $ @item.Price</span>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+

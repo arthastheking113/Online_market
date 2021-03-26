@@ -1,0 +1,192 @@
+﻿@model IEnumerable<Online_market.Models.Cart>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<CustomUser> _userManager 
+@{
+    ViewData["Title"] = "Check Out";
+    var user = await _userManager.GetUserAsync(User);
+}
+
+<div class="ps-checkout pt-80 pb-80">
+    <div class="ps-container">
+        <form class="ps-checkout__form" id="information_checkout" asp-controller="Carts" asp-action="Information" >
+            <div class="row">
+                <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 ">
+                    <div class="ps-checkout__billing">
+                        <h3>Billing Detail</h3>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                First Name<span>*</span>
+                            </label>
+                            <input name="FirstName"  id="FirstName" value="@user.FirstName" required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Last Name<span>*</span>
+                            </label>
+                            <input  name="LastName" id="LastName"  value="@user.LastName" required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Email Address<span>*</span>
+                            </label>
+                            <input  name="Email" id="Email" value="@user.Email" required class="form-control" type="email">
+                        </div>
+
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Phone<span>*</span>
+                            </label>
+                            <input  name="PhoneNumber" id="PhoneNumber"  value="@user.PhoneNumber"  required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Address<span>*</span>
+                            </label>
+                            <input  name="Adress" id="Adress" value="@user.Street"  required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                State<span>*</span>
+                            </label>
+                            <input  name="State" id="State" value="@user.State"  required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                City<span>*</span>
+                            </label>
+                            <input  name="City" id="City" value="@user.City" required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Zipcode<span>*</span>
+                            </label>
+                            <input  name="Zipcode" id="Zipcode" value="@user.Zipcode"  required class="form-control" type="text">
+                        </div>
+                        <h3 class="mt-40"> Addition information</h3>
+                        <div class="form-group form-group--inline textarea">
+                            <label>Order Notes</label>
+                            <textarea  name="Notes" id="Notes" class="form-control" rows="5" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 ">
+                    <div class="ps-checkout__order">
+                        <header>
+                            <h3>Your Order</h3>
+                        </header>
+                        <div class="content">
+                            <table class="table ps-checkout__products">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase">Product</th>
+                                        <th class="text-uppercase">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@(item.Name) x @item.Quantity</td>
+                                            <td>$@((Convert.ToDecimal(item.Price) * Convert.ToDecimal(item.Quantity)).ToString("0.##"))</td>
+                                        </tr>
+                                    }
+
+                                    <tr style="border-top:1px solid white">
+                                        <td>Fax(7%):</td>
+                                        <td>$@ViewBag.faxFee</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Shipping:</td>
+                                        <td>$15.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total:</td>
+                                        <td>$@ViewBag.TotalGrand</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <footer>
+
+                            <div class="form-group paypal">
+                               
+                                <!-- Button trigger modal -->
+                                <button type="button"  class="ps-btn ps-btn--fullwidth" data-toggle="modal" data-target="#exampleModal2">
+                                    Place Order<i class="ps-icon-next"></i>
+                                </button>
+                      
+                                <!-- Modal -->
+                                <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+                                    <br /><br /><br /><br /> <br /><br /><br /><br /> <br /><br /><br /><br />
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-lg-3">
+
+                                                    </div>
+                                                    <div class="col-lg-8">
+                                                        <h5 class="pb-3">Are you sure to process payment?</h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">No, I'm not</button>
+                                                <button type="button" id="checkout-button" class="btn btn-primary">Yes, I'm sure!</button>
+                                            </div>
+                                            <script>
+                                                function submitForm() {
+                                                    var modal = document.getElementById('exampleModal2')
+                                                    var firstName = document.getElementById('FirstName').value;
+                                                    var lastName = document.getElementById('LastName').value;
+                                                    var address = document.getElementById('Adress').value;
+                                                    var email = document.getElementById('Email').value;
+                                                    var phoneNumber = document.getElementById('PhoneNumber').value;
+                                                    var state = document.getElementById('State').value;
+                                                    var city = document.getElementById('City').value;
+                                                    var zipcode = document.getElementById('Zipcode').value;
+                                                    if (firstName == '' && lastName == '' && address == '' && email == '' && phoneNumber == '' && state == '' && city == '' && zipcode == '') {
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Oops...',
+                                                            text: 'Some Field Need To Be Filled',
+                                                            footer: 'You need to enter all of the field to process your payment'
+                                                        })
+                                                    } else {
+                                                        Swal.fire({
+                                                            position: 'center',
+                                                            icon: 'success',
+                                                            title: 'Great! We got all of your information',
+                                                            showConfirmButton: false,
+                                                            timer: 1300
+                                                        })
+                                                        
+                                                        setTimeout(function () {
+                                                            document.getElementById('information_checkout').submit();
+                                                        }, 1200);
+                                                    }
+                                                }
+                                                document.getElementById('checkout-button').addEventListener('click', submitForm)
+
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                    <div class="ps-shipping">
+                        <h3>SHIPPING SPEED</h3>
+                        <p>Our shipping usually take 4-5 days from the date the order have been placed.</p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

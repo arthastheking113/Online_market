@@ -1,0 +1,751 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* Provide sufficient contrast against white background */
+a {
+  color: #0366d6;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+.profile-user-img {
+    border: 3px solid #adb5bd;
+    margin: 0 auto;
+    padding: 3px;
+    width: 100px;
+}
+
+.profile-username {
+    font-size: 21px;
+    margin-top: 5px;
+}
+
+.img-rounded {
+    border-radius: 0.25rem;
+}
+
+.img-circle {
+    border-radius: 50%;
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+}
+
+
+/*This is Cart Css*/
+
+@import "compass/css3";
+/* I wanted to go with a mobile first approach, but it actually lead to more verbose CSS in this case, so I've gone web first. Can't always force things... Side note: I know that this style of nesting in SASS doesn't result in the most performance efficient CSS code... but on the OCD/organizational side, I like it. So for CodePen purposes, CSS selector performance be damned. */
+/* Global settings */
+/* Global "table" column settings */
+.product-image {
+    float: left;
+    width: 20%;
+}
+
+.product-details {
+    float: left;
+    width: 37%;
+}
+
+.product-price {
+    float: left;
+    width: 12%;
+}
+
+.product-quantity {
+    float: left;
+    width: 10%;
+}
+
+.product-removal {
+    float: left;
+    width: 12%;
+}
+
+.product-line-price {
+    float: left;
+    width: 8%;
+    text-align: right;
+}
+/* This is used as the traditional .clearfix class */
+.group:before, .shopping-cart:before, .column-labels:before, .product:before, .totals-item:before, .group:after, .shopping-cart:after, .column-labels:after, .product:after, .totals-item:after {
+    content: '';
+    display: table;
+}
+
+.group:after, .shopping-cart:after, .column-labels:after, .product:after, .totals-item:after {
+    clear: both;
+}
+
+.group, .shopping-cart, .column-labels, .product, .totals-item {
+    zoom: 1;
+}
+    /* Apply clearfix in a few places */
+    /* Apply dollar signs */
+    .product .product-price:before, .product .product-line-price:before, .totals-value:before {
+        content: '$';
+    }
+/* Body/Header stuff */
+body {
+    padding: 0px 30px 30px 20px;
+    font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
+}
+
+h1 {
+    font-weight: 100;
+}
+
+label {
+    color: #aaa;
+}
+
+.shopping-cart {
+    margin-top: -45px;
+}
+/* Column headers */
+.column-labels label {
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.column-labels .product-image, .column-labels .product-details, .column-labels .product-removal {
+    text-indent: -9999px;
+}
+/* Product entries */
+.product {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+    .product .product-image {
+        text-align: center;
+    }
+
+        .product .product-image img {
+            width: 100px;
+        }
+
+    .product .product-details .product-title {
+        margin-right: 20px;
+        font-family: 'HelveticaNeue-Medium', 'Helvetica Neue Medium';
+    }
+
+    .product .product-details .product-description {
+        margin: 5px 20px 5px 0;
+        line-height: 1.4em;
+    }
+
+    .product .product-quantity input {
+        width: 40px;
+    }
+
+    .product .remove-product {
+        border: 0;
+        padding: 4px 8px;
+        background-color: #c66;
+        color: #fff;
+        font-family: 'HelveticaNeue-Medium', 'Helvetica Neue Medium';
+        font-size: 12px;
+        border-radius: 3px;
+    }
+
+        .product .remove-product:hover {
+            background-color: #a44;
+        }
+/* Totals section */
+.totals .totals-item {
+    float: right;
+    clear: both;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+    .totals .totals-item label {
+        float: left;
+        clear: both;
+        width: 79%;
+        text-align: right;
+    }
+
+    .totals .totals-item .totals-value {
+        float: right;
+        width: 21%;
+        text-align: right;
+    }
+
+.totals .totals-item-total {
+}
+
+.checkout {
+    float: right;
+    border: 0;
+    margin-top: 20px;
+    padding: 6px 25px;
+    background-color: #6b6;
+    color: #fff;
+    font-size: 25px;
+    border-radius: 3px;
+}
+
+    .checkout:hover {
+        background-color: #494;
+    }
+/* Make adjustments for tablet */
+@media screen and (max-width: 650px) {
+    .shopping-cart {
+        margin: 0;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .column-labels {
+        display: none;
+    }
+
+    .product-image {
+        float: right;
+        width: auto;
+    }
+
+        .product-image img {
+            margin: 0 0 10px 10px;
+        }
+
+    .product-details {
+        float: none;
+        margin-bottom: 10px;
+        width: auto;
+    }
+
+    .product-price {
+        clear: both;
+        width: 70px;
+    }
+
+    .product-quantity {
+        width: 100px;
+    }
+
+        .product-quantity input {
+            margin-left: 20px;
+        }
+
+        .product-quantity:before {
+            content: 'x';
+        }
+
+    .product-removal {
+        width: auto;
+    }
+
+    .product-line-price {
+        float: right;
+        width: 70px;
+    }
+}
+/* Make more adjustments for phone */
+@media screen and (max-width: 350px) {
+    .product-removal {
+        float: right;
+    }
+
+    .product-line-price {
+        float: right;
+        clear: left;
+        width: auto;
+        margin-top: 10px;
+    }
+
+    .product .product-line-price:before {
+        content: 'Item Total: $';
+    }
+
+    .totals .totals-item label {
+        width: 60%;
+    }
+
+    .totals .totals-item .totals-value {
+        width: 40%;
+    }
+}
+
+
+.btn.btn-flat {
+    border-radius: 0;
+    border-width: 1px;
+    box-shadow: none;
+}
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+
+
+/*------/ Back to top button /------*/
+.back-to-top {
+    position: fixed;
+    display: none;
+    background: #1cd5db;
+    color: #fff;
+    width: 44px;
+    height: 44px;
+    text-align: center;
+    line-height: 1;
+    font-size: 16px;
+    border-radius: 50%;
+    right: 15px;
+    bottom: 15px;
+    transition: background 0.5s;
+    z-index: 11;
+}
+
+    .back-to-top i {
+        padding-top: 12px;
+        color: #fff;
+    }
+
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 15px;
+    }
+}
+
+/*------/ Prelaoder /------*/
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    overflow: hidden;
+    background: #fff;
+}
+
+    #preloader:before {
+        content: "";
+        position: fixed;
+        top: calc(50% - 30px);
+        left: calc(50% - 30px);
+        border: 6px solid #f2f2f2;
+        border-top: 6px solid #1cd5db;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        -webkit-animation: animate-preloader 1s linear infinite;
+        animation: animate-preloader 1s linear infinite;
+    }
+
+@-webkit-keyframes animate-preloader {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes animate-preloader {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes example12 {
+    0% {
+        background-color: red;
+        background-size: 5%;
+    }
+
+    25% {
+        background-color: yellow;
+        background-size: 10%;
+    }
+
+    50% {
+        background-color: blue;
+        background-size: 20%;
+    }
+
+    75% {
+        background-color: green;
+        background-size: 30%;
+    }
+
+    100% {
+        background-color: red;
+        background-size: 40%;
+    }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+
+.forms-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.section-title {
+    font-size: 32px;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+.forms {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 30px;
+}
+
+.form-wrapper {
+    animation: hideLayer .3s ease-out forwards;
+}
+
+    .form-wrapper.is-active {
+        animation: showLayer .3s ease-in forwards;
+    }
+
+@keyframes showLayer {
+    50% {
+        z-index: 1;
+    }
+
+    100% {
+        z-index: 1;
+    }
+}
+
+@keyframes hideLayer {
+    0% {
+        z-index: 1;
+    }
+
+    49.999% {
+        z-index: 1;
+    }
+}
+
+.switcher {
+    position: relative;
+    cursor: pointer;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 0;
+    text-transform: uppercase;
+    font-family: inherit;
+    font-size: 16px;
+    letter-spacing: .5px;
+    color: #fff;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    transform: translateX(0);
+    transition: all .3s ease-out;
+}
+
+.form-wrapper.is-active .switcher-login {
+    color: #fff;
+    transform: translateX(90px);
+}
+
+.form-wrapper.is-active .switcher-signup {
+    color: #fff;
+    transform: translateX(-90px);
+}
+
+.underline {
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+    width: 100%;
+    height: 2px;
+}
+
+    .underline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: inherit;
+        display: block;
+        width: inherit;
+        height: inherit;
+        background-color: currentColor;
+        transition: transform .2s ease-out;
+    }
+
+.switcher-login .underline::before {
+    transform: translateX(101%);
+}
+
+.switcher-signup .underline::before {
+    transform: translateX(-101%);
+}
+
+.form-wrapper.is-active .underline::before {
+    transform: translateX(0);
+}
+
+.form {
+    overflow: hidden;
+    min-width: 260px;
+    margin-top: 50px;
+    padding: 30px 25px;
+    border-radius: 5px;
+    transform-origin: top;
+}
+
+.form-login {
+    animation: hideLogin .3s ease-out forwards;
+}
+
+.form-wrapper.is-active .form-login {
+    animation: showLogin .3s ease-in forwards;
+}
+
+@keyframes showLogin {
+    0% {
+        background: #d7e7f1;
+        transform: translate(40%, 10px);
+    }
+
+    50% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        background-color: #fff;
+        transform: translate(35%, -20px);
+    }
+}
+
+@keyframes hideLogin {
+    0% {
+        background-color: #fff;
+        transform: translate(35%, -20px);
+    }
+
+    50% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        background: #d7e7f1;
+        transform: translate(40%, 10px);
+    }
+}
+
+.form-signup {
+    animation: hideSignup .3s ease-out forwards;
+}
+
+.form-wrapper.is-active .form-signup {
+    animation: showSignup .3s ease-in forwards;
+}
+
+@keyframes showSignup {
+    0% {
+        background: #d7e7f1;
+        transform: translate(-40%, 10px) scaleY(.8);
+    }
+
+    50% {
+        transform: translate(0, 0) scaleY(.8);
+    }
+
+    100% {
+        background-color: #fff;
+        transform: translate(-35%, -20px) scaleY(1);
+    }
+}
+
+@keyframes hideSignup {
+    0% {
+        background-color: #fff;
+        transform: translate(-35%, -20px) scaleY(1);
+    }
+
+    50% {
+        transform: translate(0, 0) scaleY(.8);
+    }
+
+    100% {
+        background: #d7e7f1;
+        transform: translate(-40%, 10px) scaleY(.8);
+    }
+}
+
+.form fieldset {
+    position: relative;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    transition: all .3s ease-out;
+}
+
+.form-login fieldset {
+    transform: translateX(-50%);
+}
+
+.form-signup fieldset {
+    transform: translateX(50%);
+}
+
+.form-wrapper.is-active fieldset {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity .4s ease-in, transform .35s ease-in;
+}
+
+.form legend {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip: rect(0 0 0 0);
+}
+
+.input-block {
+    margin-bottom: 20px;
+}
+
+    .input-block label {
+        font-size: 14px;
+        color: #a1b4b4;
+    }
+
+    .input-block input {
+        display: block;
+        width: 100%;
+        margin-top: 8px;
+        padding-right: 15px;
+        padding-left: 15px;
+        font-size: 16px;
+        line-height: 40px;
+        color: #3b4465;
+        background: #eef9fe;
+        border: 1px solid #cddbef;
+        border-radius: 2px;
+    }
+
+.form [type='submit'] {
+    opacity: 0;
+    display: block;
+    min-width: 120px;
+    margin: 30px auto 10px;
+    font-size: 18px;
+    line-height: 40px;
+    border-radius: 25px;
+    border: none;
+    transition: all .3s ease-out;
+}
+
+.form-wrapper.is-active .form [type='submit'] {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all .4s ease-in;
+}
+
+.btn-login {
+    color: #fbfdff;
+    background: #a7e245;
+    transform: translateX(-30%);
+}
+
+.btn-signup {
+    color: #a7e245;
+    background: #fbfdff;
+    box-shadow: inset 0 0 0 2px #a7e245;
+    transform: translateX(30%);
+}
+
+
+.checked {
+    color: orange;
+}

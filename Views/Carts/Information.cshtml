@@ -1,0 +1,148 @@
+﻿@model IEnumerable<Online_market.Models.Cart>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<CustomUser> _userManager
+@{
+    ViewData["Title"] = "Confirm Payment";
+    var user = await _userManager.GetUserAsync(User);
+}
+
+
+<div class="ps-checkout pt-80 pb-80">
+    <div class="ps-container">
+        <form class="ps-checkout__form">
+            <div class="row pb-5 mb-5">
+                <div class="col-lg-3">
+
+                </div>
+                <div class="col-lg-6">
+                    <h1 class="pb-7">Please Check Your Information</h1>
+                    
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 ">
+                    <div class="ps-checkout__billing">
+                        <h3>Billing Detail</h3>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                First Name<span>*</span>
+                            </label>
+                            <input name="FirstName" value="@user.FirstName" readonly class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Last Name<span>*</span>
+                            </label>
+                            <input name="LastName"  value="@user.LastName" readonly required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Email Address<span>*</span>
+                            </label>
+                            <input name="Email"  value="@user.Email" readonly required class="form-control" type="email">
+                        </div>
+
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Phone<span>*</span>
+                            </label>
+                            <input name="PhoneNumber"  value="@user.PhoneNumber" readonly required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Address<span>*</span>
+                            </label>
+                            <input name="Adress"  value="@user.Street" readonly required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                State<span>*</span>
+                            </label>
+                            <input name="State"  value="@user.State" readonly required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                City<span>*</span>
+                            </label>
+                            <input name="City"  value="@user.City" readonly required class="form-control" type="text">
+                        </div>
+                        <div class="form-group form-group--inline">
+                            <label>
+                                Zipcode<span>*</span>
+                            </label>
+                            <input name="Zipcode"  value="@user.Zipcode" readonly required class="form-control" type="text">
+                        </div>
+                        <h3 class="mt-40"> Addition information</h3>
+                        <div class="form-group form-group--inline textarea">
+                            <label>Order Notes</label>
+                            <textarea name="Notes"  value="@Model.First().Notes" readonly class="form-control" rows="5" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 ">
+                    <div class="ps-checkout__order">
+                        <header>
+                            <h3>Your Order</h3>
+                        </header>
+                        <div class="content">
+                            <table class="table ps-checkout__products">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase">Product</th>
+                                        <th class="text-uppercase">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@(item.Name) x @item.Quantity</td>
+                                            <td>$@((Convert.ToDecimal(item.Price) * Convert.ToDecimal(item.Quantity)).ToString("0.##"))</td>
+                                        </tr>
+                                    }
+
+                                    <tr style="border-top:1px solid white">
+                                        <td>Fax(7%):</td>
+                                        <td>$@ViewBag.faxFee</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Shipping:</td>
+                                        <td>$15.00</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid white">
+                                        <td>Total:</td>
+                                        <td>$@ViewBag.TotalGrand</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <footer>
+
+                            <div class="form-group paypal">
+
+                                <!-- Button trigger modal -->
+                                <button type="button" id="check-out-button" class="ps-btn ps-btn--fullwidth">
+                                    Process to check out<i class="ps-icon-next"></i>
+                                </button>
+                                <a type="button" asp-controller="Carts" asp-action="CheckOut" style="background-color:#007bff"  class="ps-btn ps-btn--fullwidth">
+                                    Correct my informations<i class="ps-icon-back"></i>
+                                </a>
+                                <!-- Modal -->
+
+                            </div>
+                        </footer>
+                    </div>
+                    <div class="ps-shipping">
+                        <h3>SHIPPING SPEED</h3>
+                        <p>Our shipping usually take 4-5 days from the date the order have been placed.</p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+

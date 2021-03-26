@@ -1,0 +1,30 @@
+﻿@model Online_market.Models.Order
+@{
+    ViewData["Title"] = "Track Order";
+}
+
+<div class="jumbotron text-center" style="background-color:white;">
+    <form asp-action="TrackOrderDetails" method="post">
+        <h1 class="display-3">Track Your Order</h1>
+        <p class="lead"><strong>Please enter your Tracking Number</strong></p>
+        <div class="row">
+            <div class="col-lg-4">
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <input name="TrackingNumber" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <p class="lead"><strong style="color:orangered">I'm Sorry. There is no Order with that Tracking Number. Please try again.</strong></p>
+
+        <input type="submit" class="btn btn-info btn-lg" value="Track My Order" />
+        <hr>
+        <p>
+            Having trouble? <a asp-controller="Home" asp-action="Contact" style="color:blue">Contact us</a>
+        </p>
+        <p class="lead">
+            <a class="btn btn-primary btn-lg" asp-controller="Items" asp-action="Index" role="button">Continue Shopping</a>
+        </p>
+    </form>
+</div>

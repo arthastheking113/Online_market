@@ -1,0 +1,110 @@
+﻿@model IEnumerable<Online_market.Models.Order>
+@using Online_market.Services
+@inject IImageService imageService
+@{
+    ViewData["Title"] = "Track Order";
+    var ModelCount = Model.ToList().Count;
+    decimal totalPrice = 0M;
+    List<int> id_Of_each_Item = Model.Select(c => c.Id).ToList();
+    var CountModelItem = 0;
+    var test = (int[])ViewBag.IdArray;
+}
+
+<div class="ps-content pt-80 pb-80">
+    <div class="ps-container">
+        <div class="ps-cart-listing">
+            <div class="row">
+                <div class="col-md-4">
+
+                </div>
+                <div class="col-md-4">
+                    <form asp-action="UpdateOrderStatus" method="post">
+                        <input type="hidden" name="TrackingNumber" value="@ViewBag.TrackingNumber" />
+                        <div class="form-group">
+                            <label >Order Status</label>
+                            <select class="form-control" name="OrderStatusId" asp-items="ViewBag.OrderStatus"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tracking Link fomr delivery service</label>
+                            <input name="TrackingLink" class="form-control" placeholder="Enter Tracking Link If You Have..." />
+                        </div>
+                        <input class="btn btn-secondary btn-block" type="submit" value="Update Order" />
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <a class="ps-btn mb-10" type="button" asp-controller="Orders" asp-action="Index" >Back to List<i class="ps-icon-back"></i></a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Track Number: @ViewBag.TrackingNumber</h2>
+                </div>
+                <div class="col-md-6 text-right" >
+                    <h5 style="margin-top:5%;">Status:<i style="color:green"> @Model.First().OrderStatus.Description</i></h5>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="margin-top:5%;">Tracking Link:<i style="color:green"> @Model.First().TrackingLink</i></h5>
+                </div>
+            </div>
+            <br /><br />
+            <table class="table ps-cart__table">
+                <thead>
+                    <tr>
+                        <th>All Products</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+
+                        <tr>
+                            <td><a class="ps-product__preview" href="product-detail.html"><img class="mr-15" src="@imageService.DecodeFileForCart(item.ImageData,item.ContentType)" style="height:100px;width:100px" alt=""> @Html.DisplayFor(modelItem => item.Name)</a></td>
+                            <td id="price-@item.Id">$@Html.DisplayFor(modelItem => item.Price)</td>
+                            <td>
+                                <div class="form-group--number">
+
+                                    <input id="quantity-@item.Id" readonly class="form-control" type="number" value="@item.Quantity">
+
+                                   
+                                </div>
+                            </td>
+                            <td id="total-price-@item.Id">$@((Convert.ToDecimal(item.Price) * Convert.ToDecimal(item.Quantity)).ToString("0.##"))</td>
+
+                        </tr>
+                        CountModelItem += 1;
+                    }
+                </tbody>
+            </table>
+            <div class="ps-cart__actions">
+                <div class="ps-cart__promotion">
+                    <div class="form-group">
+                        <a asp-controller="Home" asp-action="Index" class="ps-btn ps-btn--gray">Continue Shopping</a>
+                    </div>
+                </div>
+                <div class="ps-cart__total">
+                    <h3>Shipping: <span id="shippingFee"> $ 15.00</span></h3>
+                    <h3>Tax(7%): <span id="taxFee"> $ @ViewBag.faxFee</span></h3>
+                    <h3>Total Price: <span id="total-price-checkout"> $ @ViewBag.TotalGrand</span></h3>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ps-subscribe">
+    <div class="ps-container">
+        <div class="row">
+            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12 ">
+                <h3><i class="fa fa-envelope"></i>Sign up to Newsletter</h3>
+            </div>
+        </div>
+    </div>
+</div>

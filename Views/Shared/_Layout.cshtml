@@ -1,0 +1,500 @@
+﻿@using Online_market.Data
+@inject ApplicationDbContext _context
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<CustomUser> _userManager
+@inject SignInManager<CustomUser> _signInManager
+@using Online_market.Services
+@inject IImageService _imageService 
+@{
+    var Item_In_cart = _context.Cart.Where(i => i.CustomUserId == _userManager.GetUserId(User) && !i.IsSold).ToList();
+    var Number_of_Item = 0;
+    foreach (var itemInCart in Item_In_cart)
+    {
+        Number_of_Item += itemInCart.Quantity;
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+    <title>@ViewData["Title"] - Lan's Market</title>
+    @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />*@
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link href="~/img/favicon.png" rel="icon" />
+    <link rel="stylesheet" href="~/css/global.css" />
+    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="~/js/client.js" defer></script>
+    <!-- Fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Archivo+Narrow:300,400,700%7CMontserrat:300,400,500,600,700,800,900" rel="stylesheet">
+    <link rel="stylesheet" href="~/plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/plugins/ps-icon/style.css">
+    <!-- CSS Library-->
+    <link rel="stylesheet" href="~/plugins/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/plugins/owl-carousel/assets/owl.carousel.css">
+    <link rel="stylesheet" href="~/plugins/jquery-bar-rating/dist/themes/fontawesome-stars.css">
+    <link rel="stylesheet" href="~/plugins/slick/slick/slick.css">
+    <link rel="stylesheet" href="~/plugins/bootstrap-select/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="~/plugins/Magnific-Popup/dist/magnific-popup.css">
+    <link rel="stylesheet" href="~/plugins/jquery-ui/jquery-ui.min.css">
+    <link rel="stylesheet" href="~/plugins/revolution/css/settings.css">
+    <link rel="stylesheet" href="~/plugins/revolution/css/layers.css">
+    <link rel="stylesheet" href="~/plugins/revolution/css/navigation.css">
+    <!-- Custom-->
+    <link rel="stylesheet" href="~/css/style.css">
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- include summernote css/js -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+    <link href="//cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">
+
+    
+</head>
+
+<body class=" bg-light p-0 pl-0 pr-0">
+    <div class="header--sidebar"></div>
+    <header class="header">
+        <div class="header__top">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-6 col-md-8 col-sm-6 col-xs-12 ">
+                        <p>Lincoln, Nebraska  -  Hotline: 402-304-0329</p>
+                    </div>
+                    <div class="col-lg-6 col-md-4 col-sm-6 col-xs-12 ">
+                        <div class="header__actions">
+                            @if (_signInManager.IsSignedIn(User) && !(await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "TemporaryUser")))
+                            {
+                                <div class="btn-group ps-dropdown">
+                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Manage Shop<i class="fa fa-angle-down"></i></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a asp-controller="Items" asp-action="Index">Items</a></li>
+                                        <li><a asp-controller="Orders" asp-action="Index">Orders</a></li>
+                                        <li><a asp-controller="Categories" asp-action="Index">Category</a></li>
+                                        <li><a asp-controller="ItemStatus" asp-action="Index">Item Status</a></li>
+                                        <li><a asp-controller="ItemSaleOffs" asp-action="Index">Item Sale Off</a></li>
+                                    </ul>
+                                </div>
+                            }
+                            @if (_signInManager.IsSignedIn(User) && (await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Administrator")))
+                            {
+
+
+
+                                <div class="btn-group ps-dropdown">
+                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Hello @((await _userManager.GetUserAsync(User)).FullName)<i class="fa fa-angle-down"></i></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage Account</a></li>
+                                        <li><a class="nav-link text-dark" href="javascript:document.getElementById('LogoutAccount').submit()">Logout</a></li>
+                                    </ul>
+                                </div>
+                                <form asp-area="Identity" id="LogoutAccount" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                </form>
+
+                            }
+                            else
+                            {
+                                <a type="button" href="#" data-toggle="modal" data-target="#exampleModal">Login & Regiser</a>
+                                <!-- Button trigger modal -->
+                                <!-- Modal -->
+                                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+
+                                        <section class="forms-section">
+                                            <div class="forms">
+                                                <div class="form-wrapper is-active">
+                                                    <button type="button" class="switcher switcher-login">
+                                                        Login
+                                                        <span class="underline"></span>
+                                                    </button>
+                                                    <form class="form form-login" asp-controller="Home" asp-action="SignIn" method="post">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;Close</span>
+                                                        </button>
+                                                        <hr />
+                                                        <fieldset>
+                                                            <div class="text-danger validation-summary-valid" data-valmsg-summary="true">
+                                                                <ul>
+                                                                    <li style="display:none"></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="input-block">
+                                                                <label for="Email">Email</label>
+                                                                <input required class="form-control" type="email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Email" name="Email" />
+                                                                <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                                                            </div>
+                                                            <div class="input-block">
+                                                                <label for="Password">Password</label>
+                                                                <input required class="form-control" type="password" data-val="true" data-val-required="The Password field is required." id="Password" name="Password" />
+                                                                <span class="text-danger field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                                                            </div>
+
+                                                            <div class="checkbox">
+                                                                <label for="RememberMe">
+                                                                    <input type="checkbox" name="RememberMe" checked value="true" />
+                                                                    Remember me?
+                                                                </label>
+                                                            </div>
+
+                                                            <button type="submit" class="btn-login">Login</button>
+                                                            <hr />
+                                                            <div class="input-block">
+                                                                <label><a style="text-decoration: initial;" id="forgot-password" href="/Identity/Account/ForgotPassword">Forgot your password?</a></label>
+                                                            </div>
+                                                            <div class="input-block">
+                                                                <label><a style="text-decoration: initial;" id="resend-confirmation" href="/Identity/Account/ResendEmailConfirmation">Resend email confirmation</a></label>
+                                                            </div>
+
+                                                        </fieldset>
+                                                    </form>
+
+                                                </div>
+                                                <div class="form-wrapper">
+                                                    <button type="button" class="switcher switcher-signup">
+                                                        Sign Up
+                                                        <span class="underline"></span>
+                                                    </button>
+                                                    <form method="post" asp-controller="Home" asp-action="Register" class="form form-signup">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;Close</span>
+                                                        </button>
+                                                        <hr />
+                                                        <div class="text-danger validation-summary-valid" data-valmsg-summary="true">
+                                                            <ul>
+                                                                <li style="display:none"></li>
+                                                            </ul>
+                                                        </div>
+                                                        <fieldset>
+                                                            <legend>Please, fill out this form for sign up.</legend>
+
+                                                            <div class="input-block">
+                                                                <label for="FirstName">First Name</label>
+                                                                <input class="form-control" required type="text" data-val="true" data-val-length="The First Name must be at least 2 and at max 50 characters long." data-val-length-max="50" data-val-length-min="2" data-val-required="The First Name field is required." maxlength="50" name="FirstName" />
+                                                                <span class="text-danger field-validation-valid" data-valmsg-for="FirstName" data-valmsg-replace="true"></span>
+                                                            </div>
+                                                            <div class="input-block">
+                                                                <label for="LastName">Last Name</label>
+                                                                <input class="form-control" required type="text" data-val="true" data-val-length="The Last Name must be at least 2 and at max 50 characters long." data-val-length-max="50" data-val-length-min="2" data-val-required="The Last Name field is required." maxlength="50" name="LastName" />
+                                                                <span class="text-danger field-validation-valid" data-valmsg-for="LastName" data-valmsg-replace="true"></span>
+                                                            </div>
+                                                            <div class="input-block">
+                                                                <label for="Email">Email</label>
+                                                                <input class="form-control" required type="email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." name="Email" />
+                                                                <span class="text-danger field-validation-valid" data-valmsg-for="Input.Email" data-valmsg-replace="true"></span>
+                                                            </div>
+                                                            <div class="input-block">
+                                                                <label for="Password">Password</label>
+                                                                <input class="form-control" required type="password" data-val="true" data-val-length="The Password must be at least 6 and at max 100 characters long." data-val-length-max="100" data-val-length-min="6" data-val-required="The Password field is required." maxlength="100" name="Password" />
+                                                                <span class="text-danger field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                                                            </div>
+                                                            <div class="input-block">
+                                                                <label for="ConfirmPassword">Confirm password</label>
+                                                                <input class="form-control" required type="password" data-val="true" data-val-equalto="The password and confirmation password do not match." data-val-equalto-other="*.Password" name="ConfirmPassword" />
+                                                                <span class="text-danger field-validation-valid" data-valmsg-for="Input.ConfirmPassword" data-valmsg-replace="true"></span>
+                                                            </div>
+                                                            <button type="submit" class="btn-signup">Register</button>
+                                                        </fieldset>
+
+                                                    </form>
+
+                                                </div>
+                                            </div>
+                                        </section>
+                                        <script>
+                                            const switchers = [...document.querySelectorAll('.switcher')]
+
+                                            switchers.forEach(item => {
+                                                item.addEventListener('click', function () {
+                                                    switchers.forEach(item => item.parentElement.classList.remove('is-active'))
+                                                    this.parentElement.classList.add('is-active')
+                                                })
+                                            })
+                                        </script>
+                                    </div>
+                                </div>
+                            }
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <nav class="navigation">
+            <div class="container-fluid">
+                <div class="navigation__column left">
+                    <div class="header__logo"><a class="ps-logo" asp-controller="Home" asp-action="Index"><img src="~/img/LanMarketLogo.png" alt=""></a></div>
+                </div>
+                <div class="navigation__column center">
+                    <ul class="main-menu menu">
+                        <li class="menu-item menu-item-has-children dropdown">
+                            <a asp-controller="Home" asp-action="Index">Home</a>
+
+                        </li>
+                        <li class="menu-item menu-item-has-children has-mega-menu">
+                        <li class="menu-item menu-item-has-children dropdown">
+                            <a href="#">Category</a>
+                            <ul class="sub-menu">
+                                @{ var categoryList = _context.Category.ToList();}
+                                @foreach (var item in categoryList)
+                                {
+                                    <li class="menu-item"><a asp-controller="Categories" asp-action="CategoryIndex" asp-route-slug="@item.Slug">@item.Name</a></li>
+                                }
+                                <li class="menu-item"><a asp-controller="Items" asp-action="AllProduct">All Products</a></li>
+                            </ul>
+                        </li>
+                        <li class="menu-item"><a asp-controller="Items" asp-action="DrinkAndSnack">Drinks and Snacks</a></li>
+                        <li class="menu-item"><a asp-controller="Orders" asp-action="TrackOrder">Track Your Order</a></li>
+                        <li class="menu-item menu-item-has-children dropdown">
+                            <a href="#">About Us</a>
+                            <ul class="sub-menu">
+                                <li class="menu-item"><a asp-controller="Home" asp-action="About">Our Company</a></li>
+                                <li class="menu-item menu-item-has-children dropdown">
+                                    <a href="#">Q/A Area</a>
+                                    <ul class="sub-menu">
+                                        <li class="menu-item"><a>Who are we?</a></li>
+                                        <li class="menu-item"><a>Quality of Our Product?</a></li>
+                                        <li class="menu-item"><a>How fast our shipping?</a></li>
+                                    </ul>
+
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="menu-item menu-item-has-children dropdown">
+                            <a href="#">Contact</a>
+                            <ul class="sub-menu">
+                                <li class="menu-item"><a asp-controller="Home" asp-action="HowToContact">How to Contact Us?</a></li>
+                                <li class="menu-item"><a asp-controller="Home" asp-action="Contact">Send Us A Message</a></li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="navigation__column right">
+                    <form class="ps-search--header" asp-controller="Items" asp-action="Search" method="post">
+                        <input class="form-control" type="text" name="search" placeholder="Search Product…">
+                        <button type="submit"><i class="ps-icon-search"></i></button>
+                    </form>
+                    <div class="ps-cart">
+                        @if (_signInManager.IsSignedIn(User))
+                        {
+                            var number_of_item = _context.Cart.Where(i => i.CustomUserId == _userManager.GetUserId(User) && !i.IsSold).ToList().Count;
+                            float Item_total_price = 0;
+                            @if (number_of_item == 0)
+                            {
+                                <a class="ps-cart__toggle" asp-controller="Carts" asp-action="Index"><i class="ps-icon-shopping-cart"></i></a>
+                            }
+                            else
+                            {
+                                <a class="ps-cart__toggle" asp-controller="Carts" asp-action="Index"><span><i id="number_of_quantity">@Number_of_Item</i></span><i class="ps-icon-shopping-cart"></i></a>
+                            }<div class="ps-cart__listing">
+                                <div class="ps-cart__content" id="Cart-left-corner">
+                                    @foreach (var item in Item_In_cart)
+                                    {
+                                        Item_total_price += float.Parse(item.Price) * (float)item.Quantity;
+                                        <div class="ps-cart-item" id="cart-Item-@item.Id">
+                                            <a class="ps-cart-item__close" href="#" type="button" id="Remove-Item-Button-@item.Id"></a>
+                                            <div class="ps-cart-item__thumbnail"><a asp-controller="Items" asp-action="Details" asp-route-slug="@item.Slug"></a><img src="@_imageService.DecodeFileForCart(item.ImageData, item.ContentType)" alt=""></div>
+                                            <div class="ps-cart-item__content">
+                                                <a class="ps-cart-item__title" asp-controller="Items" asp-action="Details" asp-route-slug="@item.Slug">@item.Name</a>
+                                                <a class="ps-cart-item__title" asp-controller="Items" asp-action="Details" asp-route-slug="@item.Slug">Price : $@(item.Price)</a>
+                                                <p><span>Quantity:<i id="quantity-@(item.Id)-Cart">@item.Quantity</i></span><span>Total:<i>$@((Convert.ToDecimal(item.Price) * Convert.ToDecimal(item.Quantity)).ToString("0.##"))</i></span></p>
+                                            </div>
+                                        </div>
+                                        <script>
+                                            function RemoveItem() {
+                                                var url = '@Url.Action("DeleteItem", "Carts", new { id = item.Id })';
+                                                $.post(url).then(function (response) {
+                                                    document.getElementById('number_of_quantity2').innerText = `${response[1]}`;
+                                                    document.getElementById('number_of_quantity').innerText = `${response[1]}`;
+
+                                                    document.getElementById('total-price-checkout2').innerText = `$${response[0]}`;
+                                                    document.getElementById('total-price-checkout').innerText = `$${response[0]}`;
+
+                                                    document.getElementById('taxFee').innerHTML = `$${response[2]}`;
+
+
+                                                });
+                                                document.getElementById('cart-Item-@item.Id').style.display = "none";
+                                                document.getElementById('cart-item2-@item.Id').style.display = "none";
+                                            };
+                                            document.getElementById('Remove-Item-Button-@item.Id').addEventListener('click', RemoveItem)
+                                        </script>
+                                    }
+                                    @{
+                                        float taxRate = (float)7;
+
+                                        float total = (Item_total_price + (float)15) * taxRate / (float)100 + Item_total_price + (float)15;
+                                    }
+
+                                </div>
+                                <div class="ps-cart__total">
+                                    <p>Number of items:<span id="number_of_quantity2">@Number_of_Item</span></p>
+                                    <p>Shipping:<span>$15.00</span></p>
+                                    @if (Number_of_Item == 0)
+                                    {
+                                        <p>Item Total:<span id="total-price-checkout2">$0.00</span></p>
+                                    }
+                                    else
+                                    {
+                                        <p>Item Total:<span id="total-price-checkout2">$@total.ToString("0.##")</span></p>
+                                    }
+                                </div>
+                                <div class="ps-cart__footer"><a class="ps-btn" asp-controller="Carts" asp-action="Index">Check out<i class="ps-icon-arrow-left"></i></a></div>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <a class="ps-cart__toggle" asp-controller="Carts" asp-action="Index"><i class="ps-icon-shopping-cart"></i></a>
+                            <div class="ps-cart__listing">
+
+                                <div class="ps-cart__total">
+                                    <p>Number of items:<span>0</span></p>
+                                    <p>Item Total:<span>$0</span></p>
+                                </div>
+                                <div class="ps-cart__footer"><a class="ps-btn" asp-controller="Carts" asp-action="Index">Check out<i class="ps-icon-arrow-left"></i></a></div>
+                            </div>
+                        }
+
+
+                    </div>
+                    <div class="menu-toggle"><span></span></div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+    <div class="ps-footer bg--cover" data-background="img/1918x977.png">
+        <div class="ps-footer__content">
+            <div class="ps-container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 ">
+                        <aside class="ps-widget--footer ps-widget--info">
+                        </aside>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 ">
+                        <aside class="ps-widget--footer ps-widget--info">
+                            <header>
+                                <a class="ps-logo" href="index.html"><img src="~/img/LanMarketLogo.png" alt=""></a>
+                                <h3 class="ps-widget__title">Our Head Quarter</h3>
+                            </header>
+                            <footer>
+                                <p><strong>Lincoln, Nebraska</strong></p>
+                                <p>Email: <a href='mailto:arthastheking113@gmail.com'>arthastheking113@gmail.com</a></p>
+                                <p>Phone: 402 304 0329</p>
+                                <p>Fax: 323 32434 5333</p>
+                            </footer>
+                        </aside>
+                    </div>
+
+
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12 ">
+                        <aside class="ps-widget--footer ps-widget--link">
+                            <header>
+                                <h3 class="ps-widget__title">Get Help</h3>
+                            </header>
+                            <footer>
+                                <ul class="ps-list--line">
+                                    <li><a href="#">Order Status</a></li>
+                                    <li><a href="#">Shipping and Delivery</a></li>
+                                    <li><a href="#">Returns</a></li>
+                                    <li><a href="#">Payment Options</a></li>
+                                    <li><a asp-controller="Home" asp-action="About">Contact Us</a></li>
+                                </ul>
+                            </footer>
+                        </aside>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12 ">
+                        <aside class="ps-widget--footer ps-widget--link">
+                            <header>
+                                <h3 class="ps-widget__title">Products</h3>
+                            </header>
+                            <footer>
+                                <ul class="ps-list--line">
+                                    @foreach (var item in categoryList)
+                                    {
+                                        <li><a asp-controller="Categories" asp-action="CategoryIndex" asp-route-slug="@item.Slug">@item.Name</a></li>
+                                    }
+
+                                </ul>
+                            </footer>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ps-footer__copyright">
+            <div class="ps-container">
+                <div class="row">
+                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 text-right">
+                        <p>&copy; <a href="https://duylanle-portfolio.netlify.app/">Lan's Market</a>. All rights Resevered. Design by <a href="https://duylanle-portfolio.netlify.app/"> Duy Lan Le</a></p>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 ">
+                        <ul class="ps-social">
+                            <li><a href="https://www.facebook.com/king.mountain.9/"><i class="fa fa-facebook"></i></a></li>
+                            <li><a href="https://www.linkedin.com/in/duy-lan-le-445262163/"><i class="fa fa-linkedin"></i></a></li>
+                            <li><a href="https://twitter.com/DuyLanLe3"><i class="fa fa-twitter"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
+        <div id="preloader"></div>
+    </div>
+
+
+    <script type="text/javascript" src="~/plugins/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="~/plugins/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/plugins/jquery-bar-rating/dist/jquery.barrating.min.js"></script>
+    <script type="text/javascript" src="~/plugins/owl-carousel/owl.carousel.min.js"></script>
+    <script type="text/javascript" src="~/plugins/gmap3.min.js"></script>
+    <script type="text/javascript" src="~/plugins/imagesloaded.pkgd.js"></script>
+    <script type="text/javascript" src="~/plugins/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="~/plugins/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="~/plugins/jquery.matchHeight-min.js"></script>
+    <script type="text/javascript" src="~/plugins/slick/slick/slick.min.js"></script>
+    <script type="text/javascript" src="~/plugins/elevatezoom/jquery.elevatezoom.js"></script>
+    <script type="text/javascript" src="~/plugins/Magnific-Popup/dist/jquery.magnific-popup.min.js"></script>
+    <script type="text/javascript" src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAx39JFH5nhxze1ZydH-Kl8xXM3OK4fvcg&amp;region=GB"></script>
+    <script type="text/javascript" src="~/plugins/revolution/js/jquery.themepunch.tools.min.js"></script>
+    <script type="text/javascript" src="~/plugins/revolution/js/jquery.themepunch.revolution.min.js"></script>
+    <script type="text/javascript" src="~/plugins/revolution/js/extensions/revolution.extension.video.min.js"></script>
+    <script type="text/javascript" src="~/plugins/revolution/js/extensions/revolution.extension.slideanims.min.js"></script>
+    <script type="text/javascript" src="~/plugins/revolution/js/extensions/revolution.extension.layeranimation.min.js"></script>
+    <script type="text/javascript" src="~/plugins/revolution/js/extensions/revolution.extension.navigation.min.js"></script>
+    <script type="text/javascript" src="~/plugins/revolution/js/extensions/revolution.extension.parallax.min.js"></script>
+    <script type="text/javascript" src="~/plugins/revolution/js/extensions/revolution.extension.actions.min.js"></script>
+
+    <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <!-- Custom scripts-->
+    <script type="text/javascript" src="~/js/main.js"></script>
+    @*<script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>*@
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#orderTable').DataTable({
+                "responsive": true,
+                "autoWidth": false,
+                "paging": true,
+                "pageLength": 100
+            }).order([6, 'desc']);
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

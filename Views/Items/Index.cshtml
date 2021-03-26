@@ -1,0 +1,62 @@
+﻿@model IEnumerable<Online_market.Models.Item>
+@using Online_market.Services
+@inject IImageService imageService
+@using Online_market.Data
+@inject ApplicationDbContext _context  
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<a class="btn btn-secondary" asp-action="Create">Create new Item</a>
+<br />
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>List Price</th>
+            <th>View</th>
+            <th>Number Of Sold</th>
+            <th>SaleOff</th>
+            <th>Status</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>#@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.Price</td>
+                <td>@item.ListPrice(_context, item.Price, item.ItemSaleOffId)</td>
+                <td>@item.ViewCount</td>
+                <td>@item.Number_Of_Sold</td>
+                <td>@item.ItemSaleOff.Name</td>
+                <td>@item.ItemStatus.Name</td>
+                <td>@item.Category.Name</td>
+                <td>@item.Description</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-slug="@item.Slug">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />

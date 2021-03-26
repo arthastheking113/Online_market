@@ -54,7 +54,7 @@
             </div>
             <div class="col-md-8">
                 <h4>Edit Item</h4>
-                <form asp-action="Edit" enctype="multipart/form-data">
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="Id" />
                     @if (Model.ImageData != null && Model.ContentType != null)
@@ -76,7 +76,7 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="Content" class="control-label"></label>
-                        <textarea id="editItem" asp-for="Content" required class="form-control"></textarea>
+                        <textarea id="editItem" asp-for="Content"  class="form-control"></textarea>
                         <span asp-validation-for="Content" class="text-danger"></span>
                     </div>
                     <input asp-for="RateValue" type="hidden" class="form-control" />

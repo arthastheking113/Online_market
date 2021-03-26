@@ -19,7 +19,7 @@
                 </div>
                 <div class="col-md-4">
                     <form asp-action="UpdateOrderStatus" method="post">
-                        <input type="hidden" name="TrackingNumber" value="@ViewBag.TrackingNumber" />
+                        <input type="hidden" name="TrackingNumber" value="@ViewBag.TrackingNumber" /> 
                         <div class="form-group">
                             <label >Order Status</label>
                             <select class="form-control" name="OrderStatusId" asp-items="ViewBag.OrderStatus"></select>

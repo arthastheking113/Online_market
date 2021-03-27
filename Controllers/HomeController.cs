@@ -250,7 +250,7 @@ namespace Online_market.Controllers
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User logged in.");
-                        return LocalRedirect(returnUrl);
+                        return RedirectToAction(nameof(IndexAsync));
                     }
                     if (result.RequiresTwoFactor)
                     {
@@ -264,7 +264,7 @@ namespace Online_market.Controllers
                     else
                     {
                         ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                        return LocalRedirect(returnUrl);
+                        return RedirectToAction(nameof(IndexAsync));
                     }
                 }
                

@@ -76,9 +76,10 @@ namespace Online_market.Controllers
             {
                 float total = 0;
                 float TotalItem = 0;
+                var receivedId = _context.OrderStatuses.FirstOrDefault(o => o.Name == "Received").Id;
                 foreach (var items in order)
                 {
-                    if (User.IsInRole("Administrator") || User.IsInRole("Moderator"))
+                    if ((User.IsInRole("Administrator") || User.IsInRole("Moderator")) && items.OrderStatusId == receivedId)
                     {
                         var workingStatus = _context.OrderStatuses.FirstOrDefault(o => o.Name == "Working").Id;
                         items.OrderStatusId = workingStatus;

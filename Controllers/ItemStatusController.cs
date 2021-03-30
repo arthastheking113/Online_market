@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using Online_market.Models;
 
 namespace Online_market.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class ItemStatusController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,6 +22,7 @@ namespace Online_market.Controllers
         }
 
         // GET: ItemStatus
+
         public async Task<IActionResult> Index()
         {
             return View(await _context.ItemStatus.ToListAsync());

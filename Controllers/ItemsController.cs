@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ namespace Online_market.Controllers
             _userManger = userManger;
             _slugService = slugService;
         }
-
+        [Authorize(Roles = "Administrator")]
         // GET: Items
         public async Task<IActionResult> Index()
         {
@@ -102,6 +103,7 @@ namespace Online_market.Controllers
 
 
         // GET: Items/Create
+        [Authorize(Roles = "Administrator")]
         public IActionResult Create()
         {
             ViewData["RateId"] = new SelectList(_context.Rate, "Id", "Name");
@@ -146,6 +148,7 @@ namespace Online_market.Controllers
         }
 
         // GET: Items/Edit/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -231,6 +234,7 @@ namespace Online_market.Controllers
         }
 
         // GET: Items/Delete/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

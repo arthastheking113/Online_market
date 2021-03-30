@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ namespace Online_market.Controllers
         }
 
         // GET: Orders
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = await _context.Orders.Include(o => o.Category).Include(o => o.CustomUser).Include(o => o.OrderStatus).Include(o => o.Item).OrderByDescending(o => o.Created).ToListAsync();
@@ -36,6 +38,7 @@ namespace Online_market.Controllers
         }
 
         // GET: Orders/Details/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -55,6 +58,7 @@ namespace Online_market.Controllers
 
             return View(order);
         }
+        [Authorize(Roles = "Administrator")]
         public IActionResult Create()
         {
             ViewData["CategoryId"] = new SelectList(_context.Category, "Id", "Id");
@@ -169,7 +173,7 @@ namespace Online_market.Controllers
             ViewData["ItemId"] = new SelectList(_context.Item, "Id", "Id", order.ItemId);
             return View(order);
         }
-
+        [Authorize(Roles = "Administrator")]
         // GET: Orders/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -226,7 +230,7 @@ namespace Online_market.Controllers
             ViewData["ItemId"] = new SelectList(_context.Item, "Id", "Id", order.ItemId);
             return View(order);
         }
-
+        [Authorize(Roles = "Administrator")]
         // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {

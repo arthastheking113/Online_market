@@ -77,6 +77,9 @@
                                 <a class="dropdown-toggle" href="https://duylanle-portfolio.netlify.app/" target="_blank"><i class="fa fa-folder"></i> My Porfolio</a>
                             </div>
                             <div class="btn-group ps-dropdown">
+                                <a class="dropdown-toggle" href="https://www.linkedin.com/in/duy-lan-le-445262163/" target="_blank"><i class="fa fa-linkedin-square"></i> My LinkedIn</a>
+                            </div>
+                            <div class="btn-group ps-dropdown">
                                 <a class="dropdown-toggle" href="https://github.com/arthastheking113/Online_market" target="_blank"><i class="fa fa-github"></i> My Github Repository</a>
                             </div>
                             @if (_signInManager.IsSignedIn(User) && !(await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "TemporaryUser")))

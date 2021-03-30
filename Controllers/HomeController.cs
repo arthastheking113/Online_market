@@ -231,7 +231,6 @@ namespace Online_market.Controllers
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignInAsync(string returnUrl,string Email, string Password, bool RememberMe)
         {
             var ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -273,7 +272,6 @@ namespace Online_market.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterAsync(string returnUrl, string Email, string FirstName, string LastName, string Password)
         {
             var ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();

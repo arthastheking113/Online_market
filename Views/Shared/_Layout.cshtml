@@ -65,9 +65,20 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-8 col-sm-6 col-xs-12 ">
                         <p>Lincoln, Nebraska  -  Hotline: 402-304-0329</p>
+                     
                     </div>
+                   
+                  
+       
+
                     <div class="col-lg-6 col-md-4 col-sm-6 col-xs-12 ">
                         <div class="header__actions">
+                            <div class="btn-group ps-dropdown">
+                                <a class="dropdown-toggle" href="https://duylanle-portfolio.netlify.app/" target="_blank"><i class="fa fa-folder"></i> My Porfolio</a>
+                            </div>
+                            <div class="btn-group ps-dropdown">
+                                <a class="dropdown-toggle" href="https://github.com/arthastheking113/Online_market" target="_blank"><i class="fa fa-github"></i> My Github Repository</a>
+                            </div>
                             @if (_signInManager.IsSignedIn(User) && !(await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "TemporaryUser")))
                             {
                                 <div class="btn-group ps-dropdown">

@@ -71,10 +71,6 @@
                                     <div class="ps-shoe__content">
                                         <div class="ps-shoe__variants">
                                             <div class="ps-shoe__variant normal">
-                                                @if (item.Attachments.Count != 0)
-                                                {
-                                                    <img src="@imageService.DecodeFile(item.ImageData,item.ContentType)" alt="">
-                                                }
                                                 @foreach (var image in item.Attachments)
                                                 {
                                                     if (_context.ItemAttachmentTypes.FirstOrDefault(i => i.Id == image.ItemAttachmentTypeId).Name == "OutSide")

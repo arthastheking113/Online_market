@@ -250,7 +250,7 @@ namespace Online_market.Controllers
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User logged in.");
-                        return RedirectToAction(nameof(IndexAsync));
+                        return RedirectToAction(nameof(Index));
                     }
                     if (result.RequiresTwoFactor)
                     {
@@ -264,13 +264,13 @@ namespace Online_market.Controllers
                     else
                     {
                         ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                        return RedirectToAction(nameof(IndexAsync));
+                        return RedirectToAction(nameof(Index));
                     }
                 }
                
             }
             // If we got this far, something failed, redisplay form
-            return RedirectToAction(nameof(IndexAsync));
+            return RedirectToAction(nameof(Index));
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -305,7 +305,7 @@ namespace Online_market.Controllers
                     else
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        return RedirectToAction(nameof(Index));
                     }
                 }
                 foreach (var error in result.Errors)
@@ -315,7 +315,7 @@ namespace Online_market.Controllers
             }
 
             // If we got this far, something failed, redisplay form
-            return RedirectToAction(nameof(IndexAsync));
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]

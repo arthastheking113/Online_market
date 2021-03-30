@@ -100,8 +100,6 @@
                             @if (_signInManager.IsSignedIn(User) && (await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Administrator")))
                             {
 
-
-
                                 <div class="btn-group ps-dropdown">
                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Hello @((await _userManager.GetUserAsync(User)).FullName)<i class="fa fa-angle-down"></i></a>
                                     <ul class="dropdown-menu">

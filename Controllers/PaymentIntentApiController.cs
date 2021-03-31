@@ -28,8 +28,7 @@ namespace Online_market.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateAsync()
         {
-           
-            var domain = "https://localhost:44398/";
+            string host = "https://" + HttpContext.Request.Host.ToString() + "/";
             var CartList = await _context.Cart.Where(i => i.CustomUserId == _userManger.GetUserId(User) && !i.IsSold).Include(i => i.Category).Include(i => i.CustomUser).ToListAsync();
             foreach (var items in CartList)
             {
@@ -79,8 +78,8 @@ namespace Online_market.Controllers
                   },
                 },
                 Mode = "payment",
-                SuccessUrl = domain + "Home/success",
-                CancelUrl = domain + "Carts",
+                SuccessUrl = host + "Home/success",
+                CancelUrl = host + "Carts",
             };
             var service = new SessionService();
             Session session = service.Create(options);

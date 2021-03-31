@@ -193,7 +193,7 @@ namespace Online_market.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             var callbackUrl = Url.Action(
-                                    "TrackOrderDetailsAsync",
+                                    "TrackOrderDetails",
                                     "Orders",
                                     values: new { TrackingNumber = TrackingNumber },
                                     protocol: Request.Scheme);

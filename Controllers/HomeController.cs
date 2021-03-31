@@ -164,6 +164,7 @@ namespace Online_market.Controllers
                 await _context.SaveChangesAsync();
             }
             var ReceivedStatus = _context.OrderStatuses.FirstOrDefault(o => o.Name == "Received").Id;
+            var user = await _userManager.FindByIdAsync(CartList.First().CustomUserId);
             foreach (var item in CartList)
             {
                 Order newOrder = new Order
@@ -185,12 +186,20 @@ namespace Online_market.Controllers
                     OrderStatusId = ReceivedStatus,
                     TrackingLink = "We are currently working on tracking link!",
                     Created = DateTimeOffset.Now,
-                    Updated = DateTimeOffset.Now
+                    Updated = DateTimeOffset.Now,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    PhoneNumber = user.PhoneNumber,
+                    Email = user.Email,
+                    Adress = user.Street,
+                    State = user.State,
+                    City = user.City,
+                    Zipcode = user.Zipcode
                 };
                 _context.Add(newOrder);
                 await _context.SaveChangesAsync();
             }
-            var user = await _userManager.GetUserAsync(User);
+  
 
             var callbackUrl = Url.Action(
                                     "TrackOrderDetails",

@@ -92,6 +92,40 @@
             </table>
             <div class="ps-cart__actions">
                 <div class="ps-cart__promotion">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <h5>Full Name:</h5>
+                        </div>
+                        <div class="col-md-8 text-left">
+                            <h5>@(Model.First().FirstName) @(Model.First().LastName)</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <h5>Adress:</h5>
+                        </div>
+                        <div class="col-md-8 text-left">
+                            <h5>@(Model.First().Adress), @(Model.First().City), @(Model.First().State), @(Model.First().Zipcode)</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <h5>Email:</h5>
+                        </div>
+                        <div class="col-md-8 text-left">
+                            <h5>@(Model.First().Email)</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <h5>Phone Number:</h5>
+                        </div>
+                        <div class="col-md-8 text-left">
+                            <h5>@(Model.First().PhoneNumber)</h5>
+                        </div>
+                    </div>
+                    
+                    <br />
                     <div class="form-group">
                         <a asp-controller="Home" asp-action="Index" class="ps-btn ps-btn--gray">Continue Shopping</a>
                     </div>

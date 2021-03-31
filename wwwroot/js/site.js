@@ -4,9 +4,9 @@
 
 
 function choose_state() {
-    let choose_name = document.getElementById("state");
+    let choose_name = document.getElementById("State");
     let choose_name_value = choose_name.options[choose_name.selectedIndex].value;
-    let city = document.getElementById("city");
+    let city = document.getElementById("City");
     city.innerHTML = "";
     let city_name = [];
     if (choose_name_value == "Alabama") {

@@ -199,7 +199,7 @@ namespace Online_market.Controllers
                                     protocol: Request.Scheme);
 
             await _emailSender.SendEmailAsync(user.Email, "Lan's Market received your order",
-                $"<h1>You succescfully placed an order on Lan's Market at {DateTimeOffset.Now}</h1> <br> <a style='background-color: #555555;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;' href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Clicking here to track your order</a>  <br> <h3>Your Tracking Number is: {TrackingNumber} </h3> <br>");
+                $"<h1>You succescfully placed an order on Lan's Market at {(DateTimeOffset.Now).ToString("dd MMMM yyyy - hh:mm tt")}</h1> <br> <a style='background-color: #555555;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;' href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Clicking here to track your order</a>  <br> <h3>Your Tracking Number is: {TrackingNumber} </h3> <br>");
 
             ViewData["TrackingNumber"] = TrackingNumber;
             return View();

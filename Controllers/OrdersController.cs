@@ -72,7 +72,7 @@ namespace Online_market.Controllers
         {
             return View();
         }
-        [HttpPost]
+
         public async Task<IActionResult> TrackOrderDetailsAsync(string TrackingNumber)
         {
             var order = await _context.Orders.Where(o => o.TrackingNumber == TrackingNumber).Include(o => o.Category).Include(o => o.CustomUser).Include(o => o.Item).Include(o => o.OrderStatus).ToListAsync();

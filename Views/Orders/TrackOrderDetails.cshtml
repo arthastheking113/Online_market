@@ -1,6 +1,8 @@
 ﻿@model IEnumerable<Online_market.Models.Order>
 @using Online_market.Services
 @inject IImageService imageService
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<CustomUser> _signInManager
 @{
     ViewData["Title"] = "Track Order";
     var ModelCount = Model.ToList().Count;
@@ -13,35 +15,39 @@
 <div class="ps-content pt-80 pb-80">
     <div class="ps-container">
         <div class="ps-cart-listing">
-            <div class="row">
-                <div class="col-md-4">
+            @if (_signInManager.IsSignedIn(User) && User.IsInRole("Administrator"))
+            {
+                <div class="row">
+                    <div class="col-md-4">
 
+                    </div>
+                    <div class="col-md-4">
+                        <form asp-action="UpdateOrderStatus" method="post">
+                            <input type="hidden" name="TrackingNumber" value="@ViewBag.TrackingNumber" />
+                            <div class="form-group">
+                                <label>Order Status</label>
+                                <select class="form-control" name="OrderStatusId" asp-items="ViewBag.OrderStatus"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tracking Link fomr delivery service</label>
+                                <input name="TrackingLink" class="form-control" placeholder="Enter Tracking Link If You Have..." />
+                            </div>
+                            <input class="btn btn-secondary btn-block" type="submit" value="Update Order" />
+                        </form>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <form asp-action="UpdateOrderStatus" method="post">
-                        <input type="hidden" name="TrackingNumber" value="@ViewBag.TrackingNumber" /> 
-                        <div class="form-group">
-                            <label >Order Status</label>
-                            <select class="form-control" name="OrderStatusId" asp-items="ViewBag.OrderStatus"></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Tracking Link fomr delivery service</label>
-                            <input name="TrackingLink" class="form-control" placeholder="Enter Tracking Link If You Have..." />
-                        </div>
-                        <input class="btn btn-secondary btn-block" type="submit" value="Update Order" />
-                    </form>
-                </div>
-            </div>
+            }
+
             <div class="row">
                 <div class="col-md-6">
-                    <a class="ps-btn mb-10" type="button" asp-controller="Orders" asp-action="Index" >Back to List<i class="ps-icon-back"></i></a>
+                    <a class="ps-btn mb-10" type="button" asp-controller="Orders" asp-action="Index">Back to List<i class="ps-icon-back"></i></a>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
                     <h2>Track Number: @ViewBag.TrackingNumber</h2>
                 </div>
-                <div class="col-md-6 text-right" >
+                <div class="col-md-6 text-right">
                     <h5 style="margin-top:5%;">Status:<i style="color:green"> @Model.First().OrderStatus.Description</i></h5>
                 </div>
             </div>
@@ -73,7 +79,7 @@
 
                                     <input id="quantity-@item.Id" readonly class="form-control" type="number" value="@item.Quantity">
 
-                                   
+
                                 </div>
                             </td>
                             <td id="total-price-@item.Id">$@((Convert.ToDecimal(item.Price) * Convert.ToDecimal(item.Quantity)).ToString("0.##"))</td>

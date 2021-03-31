@@ -17,50 +17,50 @@
                             <label>
                                 First Name<span>*</span>
                             </label>
-                            <input name="FirstName" value="" id="FirstName"  required class="form-control" type="text">
+                            <input name="FirstName"  id="FirstName" min="2" maxlength="50" required class="form-control" type="text">
                         </div>
                         <div class="form-group form-group--inline">
                             <label>
                                 Last Name<span>*</span>
                             </label>
-                            <input  name="LastName" value="" id="LastName"  required class="form-control" type="text">
+                            <input  name="LastName"  id="LastName" min="2" maxlength="50" required class="form-control" type="text">
                         </div>
                         <div class="form-group form-group--inline">
                             <label>
                                 Email Address<span>*</span>
                             </label>
-                            <input  name="Email" value="" id="Email" required class="form-control" type="email">
+                            <input  name="Email"  id="EmailAdress" min="5" maxlength="70" required class="form-control" type="email">
                         </div>
 
                         <div class="form-group form-group--inline">
                             <label>
                                 Phone<span>*</span>
                             </label>
-                            <input  name="PhoneNumber" value="" id="PhoneNumber"  required class="form-control" type="text">
+                            <input  name="PhoneNumber"  id="PhoneNumber" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" type = "number" maxlength = "12"  required class="form-control" >
                         </div>
                         <div class="form-group form-group--inline">
                             <label>
                                 Address<span>*</span>
                             </label>
-                            <input  name="Adress" id="Adress" value=""   required class="form-control" type="text">
+                            <input  name="Adress" id="Adress" maxlength="30" min="5" required class="form-control" type="text">
                         </div>
                         <div class="form-group form-group--inline">
                             <label>
                                 State<span>*</span>
                             </label>
-                            <input  name="State" id="State" value="" required class="form-control" type="text">
+                            <input  name="State" id="State" required maxlength="15" min="2" class="form-control" type="text">
                         </div>
                         <div class="form-group form-group--inline">
                             <label>
                                 City<span>*</span>
                             </label>
-                            <input  name="City" id="City" value="" required class="form-control" type="text">
+                            <input  name="City" id="City" maxlength="15" min="2" required class="form-control" type="text">
                         </div>
                         <div class="form-group form-group--inline">
                             <label>
                                 Zipcode<span>*</span>
                             </label>
-                            <input  name="Zipcode" id="Zipcode" value=""  required class="form-control" type="text">
+                            <input  name="Zipcode" id="Zipcode" min="3" required class="form-control" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" type = "number" maxlength = "5">
                         </div>
                         <h3 class="mt-40"> Addition information</h3>
                         <div class="form-group form-group--inline textarea">
@@ -146,12 +146,12 @@
                                                     var firstName = document.getElementById('FirstName').value;
                                                     var lastName = document.getElementById('LastName').value;
                                                     var address = document.getElementById('Adress').value;
-                                                    var email = document.getElementById('Email').value;
+                                                    var email = document.getElementById('EmailAdress').value;
                                                     var phoneNumber = document.getElementById('PhoneNumber').value;
                                                     var state = document.getElementById('State').value;
                                                     var city = document.getElementById('City').value;
                                                     var zipcode = document.getElementById('Zipcode').value;
-                                                    if (firstName == '' && lastName == '' && address == '' && email == '' && phoneNumber == '' && state == '' && city == '' && zipcode == '') {
+                                                    if (firstName == '' || lastName == '' || address == '' || email == '' || phoneNumber == '' || state == '' || city == '' || zipcode == '') {
                                                         Swal.fire({
                                                             icon: 'error',
                                                             title: 'Oops...',

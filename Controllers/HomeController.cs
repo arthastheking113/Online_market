@@ -93,17 +93,7 @@ namespace Online_market.Controllers
                     return View(featureItemList);
                 }
                 await _signInManager.SignOutAsync();
-                await _createTemporaryUSer.CreateTemporaryUserAsync();
-                var tempUser = _context.Users.FirstOrDefault(u => u.IpAdress == IpAdress && u.ConnectionId == connectionId);
-                if (tempUser != null && (await _userManager.IsInRoleAsync(tempUser, "TemporaryUser")))
-                {
-                    var result = await _signInManager.PasswordSignInAsync(tempUser.Email, "Abc123!", true, lockoutOnFailure: false);
-                    if (result.Succeeded)
-                    {
-                        _logger.LogInformation("User logged in.");
-                        return View(featureItemList);
-                    }
-                }
+                return RedirectToAction(nameof(Index));
             }
 
             return View(featureItemList);

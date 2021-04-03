@@ -73,7 +73,7 @@
                     {
 
                         <tr>
-                            <td><a class="ps-product__preview" href="product-detail.html"><img class="mr-15" src="@imageService.DecodeFileForCart(item.ImageData,item.ContentType)" style="height:100px;width:100px" alt=""> @Html.DisplayFor(modelItem => item.Name)</a></td>
+                            <td><a class="ps-product__preview" asp-controller="Items" asp-action="Details" asp-route-slug="@item.Slug"><img class="mr-15" src="@imageService.DecodeFileForCart(item.ImageData,item.ContentType)" style="height:100px;width:100px" alt=""> @Html.DisplayFor(modelItem => item.Name)</a></td>
                             <td id="price-@item.Id">$@Html.DisplayFor(modelItem => item.Price)</td>
                             <td>
                                 <div class="form-group--number">

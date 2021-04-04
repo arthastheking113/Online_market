@@ -47,7 +47,12 @@ namespace Online_market.Controllers
         public async Task<IActionResult> IndexAsync()
         
         {
-            var featureItemList = _context.Item.Include(i => i.Attachments).Include(i => i.Rates).Include(i => i.ItemStatus).Include(i => i.ItemSaleOff).Include(i => i.Category).OrderByDescending(i => i.Number_Of_Sold).ToList();
+            var featureItemList = _context.Item
+                .Include(i => i.Attachments)
+                .Include(i => i.Rates)
+                .Include(i => i.ItemStatus)
+                .Include(i => i.ItemSaleOff)
+                .Include(i => i.Category).OrderByDescending(i => i.Number_Of_Sold).ToList();
             string IpAdress = _userDetector.GetUserIpAdress();
             string connectionId = _userDetector.GetUserConnectionId();
             if (!_signInManager.IsSignedIn(User))

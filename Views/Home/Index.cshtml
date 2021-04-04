@@ -121,8 +121,8 @@
                                             }
                                         </div>
                                         <div class="ps-shoe__detail">
-                                            <a class="ps-shoe__name" href="product-detai.html">@item.Name</a>
-                                            <p class="ps-shoe__categories"><a href="#">@((_context.Category.FirstOrDefault(i => i.Id == item.CategoryId)).Name)</a></p>
+                                            <a class="ps-shoe__name" asp-controller="Items" asp-action="Details" asp-route-slug="@item.Slug">@item.Name</a>
+                                            <p class="ps-shoe__categories"><a  asp-controller="Categories" asp-action="CategoryIndex" asp-route-slug="@item.Category.Slug">@(item.Category.Name)</a></p>
                                             @if (item.ItemSaleOffId != _context.ItemSaleOff.FirstOrDefault(i => i.Name == "None").Id)
                                             {
                                                 <span class="ps-shoe__price">

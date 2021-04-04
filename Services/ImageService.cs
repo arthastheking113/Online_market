@@ -30,9 +30,9 @@ namespace Online_market.Services
         }
         public string DecodeFile(byte[] imageData, string contentType)
         {
-            if (imageData == null)
+            if (imageData == null || contentType == null)
             {
-                return "http://placehold.it/800x800";
+                return "https://placehold.it/800x800";
             }
             var imageArray = Convert.ToBase64String(imageData);
             return $"data:{contentType};base64,{imageArray}";
@@ -41,7 +41,7 @@ namespace Online_market.Services
         {
             if (imageData == null)
             {
-                return "http://placehold.it/100x100";
+                return "https://placehold.it/100x100";
             }
             var imageArray = Convert.ToBase64String(imageData);
             return $"data:{contentType};base64,{imageArray}";

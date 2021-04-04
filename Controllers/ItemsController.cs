@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Online_market.Data;
 using Online_market.Models;
 using Online_market.Services;
@@ -19,35 +20,106 @@ namespace Online_market.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IImageService _imageService;
         private readonly UserManager<CustomUser> _userManger;
+        private readonly SignInManager<CustomUser> _signInManager;
         private readonly ISlugService _slugService;
+        private readonly IUserDetector _userDetector;
+        private readonly ICreateTemporaryUser _createTemporaryUser;
+        private readonly ILogger<ItemsController> _logger;
 
-        public ItemsController(ApplicationDbContext context, IImageService imageService, UserManager<CustomUser> userManger, ISlugService slugService)
+        public ItemsController(ApplicationDbContext context,
+            IImageService imageService,
+            UserManager<CustomUser> userManger,
+            SignInManager<CustomUser> signInManager,
+            ISlugService slugService,
+            IUserDetector userDetector,
+            ICreateTemporaryUser createTemporaryUser,
+            ILogger<ItemsController> logger)
         {
             _context = context;
             _imageService = imageService;
             _userManger = userManger;
+            _signInManager = signInManager;
             _slugService = slugService;
+            _userDetector = userDetector;
+            _createTemporaryUser = createTemporaryUser;
+            _logger = logger;
         }
         [Authorize(Roles = "Administrator")]
         // GET: Items
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Item.Include(i => i.Category).Include(i => i.ItemStatus).Include(i => i.ItemSaleOff).Include(i => i.Rates);
+            var applicationDbContext = await _context.Item
+                .Include(i => i.Category)
+                .Include(i => i.ItemStatus)
+                .Include(i => i.ItemSaleOff)
+                .Include(i => i.Rates).ToListAsync();
       
-            return View(await applicationDbContext.ToListAsync());
+            return View( applicationDbContext);
         }
         public async Task<IActionResult> AllProduct()
         {
-            var applicationDbContext = _context.Item.Where(i => i.IsProductReady).Include(i => i.Category).Include(i => i.ItemStatus).Include(i => i.ItemSaleOff).Include(i => i.Rates).Include(i => i.Attachments);
+            var featureItemList = await _context.Item.Where(i => i.IsProductReady)
+                .Include(i => i.Category)
+                .Include(i => i.ItemStatus)
+                .Include(i => i.ItemSaleOff)
+                .Include(i => i.Rates)
+                .Include(i => i.Attachments).OrderByDescending(i => i.Number_Of_Sold).ToListAsync();
+            string IpAdress = _userDetector.GetUserIpAdress();
+            string connectionId = _userDetector.GetUserConnectionId();
+            if (!_signInManager.IsSignedIn(User))
+            {
+                var user = _context.Users.FirstOrDefault(u => u.IpAdress == IpAdress && u.ConnectionId == connectionId);
+                if (user != null && (await _userManger.IsInRoleAsync(user, "TemporaryUser")))
+                {
+                    var result = await _signInManager.PasswordSignInAsync(user.Email, "Abc123!", true, lockoutOnFailure: false);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User logged in.");
+                        return View(featureItemList);
+                    }
+                }
+                else
+                {
+                    await _createTemporaryUser.CreateTemporaryUserAsync();
+                    var tempUser = _context.Users.FirstOrDefault(u => u.IpAdress == IpAdress && u.ConnectionId == connectionId);
+                    if (tempUser != null && (await _userManger.IsInRoleAsync(tempUser, "TemporaryUser")))
+                    {
+                        var result = await _signInManager.PasswordSignInAsync(tempUser.Email, "Abc123!", true, lockoutOnFailure: false);
+                        if (result.Succeeded)
+                        {
+                            _logger.LogInformation("User logged in.");
+                            return View(featureItemList);
+                        }
+                    }
+                }
+            }
+            else
+            {
 
-            return View(await applicationDbContext.ToListAsync());
+                var user = await _userManger.GetUserAsync(User);
+                if (user != null)
+                {
+                    if (user.IpAdress == null && user.ConnectionId == null)
+                    {
+                        user.ConnectionId = connectionId;
+                        user.IpAdress = IpAdress;
+                        _context.Update(user);
+                        await _context.SaveChangesAsync();
+                    }
+                    return View(featureItemList);
+                }
+                await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(AllProduct));
+            }
+
+            return View(featureItemList);
         }
         public async Task<IActionResult> DrinkAndSnack()
         {
             var category = _context.Category;
             var drinksId = category.FirstOrDefault(i => i.Name == "Drinks").Id;
             var snacksId = category.FirstOrDefault(i => i.Name == "Snacks").Id;
-            var applicationDbContext = _context.Item
+            var featureItemList = await _context.Item
                 .Where(i => i.IsProductReady)
                 .Where(i => i.CategoryId == drinksId || i.CategoryId == snacksId)
                 .Include(i => i.Category)
@@ -55,9 +127,58 @@ namespace Online_market.Controllers
                 .Include(i => i.ItemSaleOff)
                 .Include(i => i.Comments)
                 .Include(i => i.Attachments)
-                .Include(i => i.Rates);
+                .Include(i => i.Rates).ToListAsync();
 
-            return View(await applicationDbContext.ToListAsync());
+
+            string IpAdress = _userDetector.GetUserIpAdress();
+            string connectionId = _userDetector.GetUserConnectionId();
+            if (!_signInManager.IsSignedIn(User))
+            {
+                var user = _context.Users.FirstOrDefault(u => u.IpAdress == IpAdress && u.ConnectionId == connectionId);
+                if (user != null && (await _userManger.IsInRoleAsync(user, "TemporaryUser")))
+                {
+                    var result = await _signInManager.PasswordSignInAsync(user.Email, "Abc123!", true, lockoutOnFailure: false);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User logged in.");
+                        return View(featureItemList);
+                    }
+                }
+                else
+                {
+                    await _createTemporaryUser.CreateTemporaryUserAsync();
+                    var tempUser = _context.Users.FirstOrDefault(u => u.IpAdress == IpAdress && u.ConnectionId == connectionId);
+                    if (tempUser != null && (await _userManger.IsInRoleAsync(tempUser, "TemporaryUser")))
+                    {
+                        var result = await _signInManager.PasswordSignInAsync(tempUser.Email, "Abc123!", true, lockoutOnFailure: false);
+                        if (result.Succeeded)
+                        {
+                            _logger.LogInformation("User logged in.");
+                            return View(featureItemList);
+                        }
+                    }
+                }
+            }
+            else
+            {
+
+                var user = await _userManger.GetUserAsync(User);
+                if (user != null)
+                {
+                    if (user.IpAdress == null && user.ConnectionId == null)
+                    {
+                        user.ConnectionId = connectionId;
+                        user.IpAdress = IpAdress;
+                        _context.Update(user);
+                        await _context.SaveChangesAsync();
+                    }
+                    return View(featureItemList);
+                }
+                await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(DrinkAndSnack));
+            }
+
+            return View(featureItemList);
         }
         // GET: Items/Details/5
         public async Task<IActionResult> Details(string slug)
@@ -79,6 +200,57 @@ namespace Online_market.Controllers
             _context.Update(item);
             await _context.SaveChangesAsync();
             ViewData["AttachmentType"] = new SelectList(_context.ItemAttachmentTypes, "Id", "Name");
+
+            string IpAdress = _userDetector.GetUserIpAdress();
+            string connectionId = _userDetector.GetUserConnectionId();
+            if (!_signInManager.IsSignedIn(User))
+            {
+                var user = _context.Users.FirstOrDefault(u => u.IpAdress == IpAdress && u.ConnectionId == connectionId);
+                if (user != null && (await _userManger.IsInRoleAsync(user, "TemporaryUser")))
+                {
+                    var result = await _signInManager.PasswordSignInAsync(user.Email, "Abc123!", true, lockoutOnFailure: false);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User logged in.");
+                        return View(item);
+                    }
+                }
+                else
+                {
+                    await _createTemporaryUser.CreateTemporaryUserAsync();
+                    var tempUser = _context.Users.FirstOrDefault(u => u.IpAdress == IpAdress && u.ConnectionId == connectionId);
+                    if (tempUser != null && (await _userManger.IsInRoleAsync(tempUser, "TemporaryUser")))
+                    {
+                        var result = await _signInManager.PasswordSignInAsync(tempUser.Email, "Abc123!", true, lockoutOnFailure: false);
+                        if (result.Succeeded)
+                        {
+                            _logger.LogInformation("User logged in.");
+                            return View(item);
+                        }
+                    }
+                }
+            }
+            else
+            {
+
+                var user = await _userManger.GetUserAsync(User);
+                if (user != null)
+                {
+                    if (user.IpAdress == null && user.ConnectionId == null)
+                    {
+                        user.ConnectionId = connectionId;
+                        user.IpAdress = IpAdress;
+                        _context.Update(user);
+                        await _context.SaveChangesAsync();
+                    }
+                    return View(item);
+                }
+                await _signInManager.SignOutAsync();
+                return RedirectToAction("Details", "Items", new { slug = slug});
+            }
+
+
+
             return View(item);
         }
 

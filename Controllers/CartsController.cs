@@ -8,8 +8,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Online_market.Data;
 using Online_market.Models;
+using Online_market.Services;
 
 namespace Online_market.Controllers
 {
@@ -19,12 +21,23 @@ namespace Online_market.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<CustomUser> _userManger;
         private readonly SignInManager<CustomUser> _signInManager;
+        private readonly ICreateTemporaryUser _createTemporaryUser;
+        private readonly IUserDetector _userDetector;
+        private readonly ILogger<CartsController> _logger;
 
-        public CartsController(ApplicationDbContext context, UserManager<CustomUser> userManger, SignInManager<CustomUser> signInManager)
+        public CartsController(ApplicationDbContext context, 
+            UserManager<CustomUser> userManger, 
+            SignInManager<CustomUser> signInManager,
+            ICreateTemporaryUser createTemporaryUser,
+            IUserDetector userDetector,
+            ILogger<CartsController> logger)
         {
             _context = context;
             _userManger = userManger;
             _signInManager = signInManager;
+            _createTemporaryUser = createTemporaryUser;
+            _userDetector = userDetector;
+            _logger = logger;
         }
 
         // GET: Carts
@@ -62,6 +75,58 @@ namespace Online_market.Controllers
             ViewData["faxFee"] = faxFee;
             ViewData["TotalGrand"] = TotalGrand;
             ViewData["IdArray"] = IdArray;
+
+
+
+            string IpAdress = _userDetector.GetUserIpAdress();
+            string connectionId = _userDetector.GetUserConnectionId();
+            if (!_signInManager.IsSignedIn(User))
+            {
+                var user = _context.Users.FirstOrDefault(u => u.IpAdress == IpAdress && u.ConnectionId == connectionId);
+                if (user != null && (await _userManger.IsInRoleAsync(user, "TemporaryUser")))
+                {
+                    var result = await _signInManager.PasswordSignInAsync(user.Email, "Abc123!", true, lockoutOnFailure: false);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User logged in.");
+                        return View(applicationDbContext);
+                    }
+                }
+                else
+                {
+                    await _createTemporaryUser.CreateTemporaryUserAsync();
+                    var tempUser = _context.Users.FirstOrDefault(u => u.IpAdress == IpAdress && u.ConnectionId == connectionId);
+                    if (tempUser != null && (await _userManger.IsInRoleAsync(tempUser, "TemporaryUser")))
+                    {
+                        var result = await _signInManager.PasswordSignInAsync(tempUser.Email, "Abc123!", true, lockoutOnFailure: false);
+                        if (result.Succeeded)
+                        {
+                            _logger.LogInformation("User logged in.");
+                            return View(applicationDbContext);
+                        }
+                    }
+                }
+            }
+            else
+            {
+
+                var user = await _userManger.GetUserAsync(User);
+                if (user != null)
+                {
+                    if (user.IpAdress == null && user.ConnectionId == null)
+                    {
+                        user.ConnectionId = connectionId;
+                        user.IpAdress = IpAdress;
+                        _context.Update(user);
+                        await _context.SaveChangesAsync();
+                    }
+                    return View(applicationDbContext);
+                }
+                await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+
             return View(applicationDbContext);
         }
 

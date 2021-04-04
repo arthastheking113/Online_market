@@ -49,7 +49,7 @@ namespace Online_market
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddMvc().AddNewtonsoftJson();
-            services.AddTransient<IImageService, ImageService>();
+            services.AddScoped<IImageService, ImageService>();
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IHttpConnectionFeature, HttpConnectionFeature>();
             services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));

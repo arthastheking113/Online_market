@@ -115,6 +115,10 @@
                         {
                             <a href="#commentSection">(Read all @Model.Comments.Count reviews)</a>
                         }
+                        else
+                        {
+                            <a href="#commentSection">(@Model.Comments.Count reviews)</a>
+                        }
                     </div>
                     <h1 id="Name">@Model.Name</h1>
                     <p class="ps-product__category"><a asp-controller="Categories" asp-action="CategoryIndex" asp-route-slug="@_slugService.URLFriendly(Model.Category.Name)"> @Model.Category.Name</a></p>
@@ -191,7 +195,7 @@
                                     icon: 'success',
                                     title: 'Item has been added to your cart',
                                     showConfirmButton: false,
-                                    timer: 1200
+                                    timer: 1600
                                 })
                                 let quantity = parseFloat(document.getElementById('quantity-@Model.Id').value);
                                 var url = `/Carts/AddItem/@Model.Id?quantity=${quantity}`;

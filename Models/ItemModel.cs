@@ -21,7 +21,5 @@ namespace Online_market.Models
         public string totalItem { get; set; }
 
         public string totalCartPrice { get; set; }
-
-        public string javascriptCode { get; set; }
     }
 }

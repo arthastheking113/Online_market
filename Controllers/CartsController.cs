@@ -240,8 +240,6 @@ namespace Online_market.Controllers
             result.totalPrice = (Convert.ToDecimal(itemInStock.Price) * Convert.ToDecimal(quantity)).ToString("0.##");
             result.totalItem = totalItemInCart.ToString();
             result.totalCartPrice = TotalGrand.ToString();
-
-            result.javascriptCode = "<script>function RemoveItem(){var url = '/Carts/DeleteItem/" + $"{id}'" + ";$.post(url).then(function(response) {document.getElementById('number_of_quantity2').innerText = `${ response[1]}`;document.getElementById('number_of_quantity').innerText = `${ response[1]}`;document.getElementById('total-price-checkout2').innerText = `$${ response[0]}`;document.getElementById('total-price-checkout').innerText = `$${ response[0]}`;document.getElementById('taxFee').innerHTML = `$${ response[2]}`;});document.getElementById('cart-Item-" + $"{id}" + "').style.display = 'none';document.getElementById('cart-item2-" + $"{id}" + "').style.display = 'none';};document.getElementById('Remove-Item-Button-" + $"{id}" + "').addEventListener('click', RemoveItem)</script>";
             return Json(result);
         }
 

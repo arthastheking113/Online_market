@@ -308,7 +308,7 @@
                             }
                             else
                             {
-                                <a class="ps-cart__toggle" asp-controller="Carts" asp-action="Index"><span><i id="number_of_quantity">@Number_of_Item</i></span><i class="ps-icon-shopping-cart"></i></a>
+                                <a class="ps-cart__toggle" asp-controller="Carts" asp-action="Index" id="total_item_of_shoppping_cart"><span><i id="number_of_quantity">@Number_of_Item</i></span><i class="ps-icon-shopping-cart"></i></a>
                             }<div class="ps-cart__listing">
                                 <div class="ps-cart__content" id="Cart-left-corner">
                                     @foreach (var item in Item_In_cart)

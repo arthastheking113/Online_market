@@ -172,18 +172,7 @@ namespace Online_market.Controllers
             var currentTime = DateTimeOffset.Now;
             foreach (var items in CartList)
             {
-                //check if the price if change or not
-                var saleOffId = _context.Item.FirstOrDefault(i => i.Id == items.ItemId).ItemSaleOffId;
-                var price = _context.Item.FirstOrDefault(i => i.Id == items.ItemId).Price;
-                var CurrentPrice = _context.Item.FirstOrDefault(i => i.Id == items.ItemId).ListPrice(_context, price, saleOffId);
-                if (items.Price != CurrentPrice)
-                {
-                    items.Price = CurrentPrice;
-                }
-                // change sold to true to make it disapear in the cart
-                items.IsSold = true;
-                _context.Update(items);
-                await _context.SaveChangesAsync();
+              
 
                 //update number of sold item
                 var item_of_shop = _context.Item.FirstOrDefault(i => i.Id == items.ItemId);
@@ -223,8 +212,12 @@ namespace Online_market.Controllers
                 };
                 _context.Add(newOrder);
                 await _context.SaveChangesAsync();
+
+                _context.Cart.Remove(items);
+                await _context.SaveChangesAsync();
             }
-           
+       
+
             var callbackUrl = Url.Action(
                                     "TrackOrderDetails",
                                     "Orders",

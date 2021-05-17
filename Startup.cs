@@ -58,6 +58,7 @@ namespace Online_market
             services.AddScoped<IUserDetector, UserDetector>();
             services.AddScoped<ICreateTemporaryUser, CreateTemporaryUser>();
             services.AddScoped<ISlugService, SlugService>();
+            services.AddScoped<ICanUserComment, CanUserComment>();
             
         }
 

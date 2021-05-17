@@ -95,8 +95,15 @@ namespace Online_market.Areas.Identity.Pages.Account
             {
                 string IpAdress = _userDetector.GetUserIpAdress();
                 string connectionId = _userDetector.GetUserConnectionId();
-                var CheckUser = _context.Users.FirstOrDefault(u => u.ConnectionId == connectionId);
-                if (CheckUser != null)
+                CustomUser CheckUser = new CustomUser();
+                CheckUser = _context.Users.FirstOrDefault(u => u.ConnectionId == connectionId);
+
+                if (CheckUser is null)
+                {
+                    CheckUser = await _userManager.FindByEmailAsync(Input.Email);
+                }
+
+                if (CheckUser is not null)
                 {
                     CheckUser.FirstName = Input.FirstName;
                     CheckUser.LastName = Input.LastName;

@@ -26,6 +26,7 @@ namespace Online_market.Controllers
         private readonly ICreateTemporaryUser _createTemporaryUSer;
         private readonly IUserDetector _userDetector;
         private readonly ApplicationDbContext _context;
+        private readonly ICanUserComment _canUserComment;
 
         public HomeController(ILogger<HomeController> logger, 
             IEmailSender emailSender, 
@@ -33,7 +34,8 @@ namespace Online_market.Controllers
             UserManager<CustomUser> userManager,
             ICreateTemporaryUser createTemporaryUSer,
             IUserDetector userDetector,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            ICanUserComment canUserComment)
         {
             _logger = logger;
             _emailSender = emailSender;
@@ -42,6 +44,7 @@ namespace Online_market.Controllers
             _createTemporaryUSer = createTemporaryUSer;
             _userDetector = userDetector;
             _context = context;
+            _canUserComment = canUserComment;
         }
 
         public async Task<IActionResult> IndexAsync()
@@ -105,9 +108,7 @@ namespace Online_market.Controllers
         }
 
 
-     
-
-        public async Task<IActionResult> SuccessAsync()
+        public string CreateTrackingNumber()
         {
             Random rand = new Random();
             var RandomNumber = Enumerable.Range(0, 10)
@@ -117,7 +118,36 @@ namespace Online_market.Controllers
             var TrackingNumber = String.Join("", string.Join(";", RandomNumber).Split('@', ',', '.', ';', '\''));
 
 
-            var applicationDbContext = await _context.Orders.Include(o => o.Category).Include(o => o.CustomUser).Include(o => o.OrderStatus).Include(o => o.Item).OrderByDescending(o => o.Updated).ToListAsync();
+            while (_context.Orders.Where(i => i.TrackingNumber == TrackingNumber).ToList().Count > 0)
+            {
+                RandomNumber = Enumerable.Range(0, 10)
+                                         .Select(i => new Tuple<int, int>(rand.Next(10), i))
+                                         .OrderBy(i => i.Item1)
+                                         .Select(i => i.Item2);
+                TrackingNumber = String.Join("", string.Join(";", RandomNumber).Split('@', ',', '.', ';', '\''));
+            }
+            return TrackingNumber;
+        }
+
+        public async Task DeleteOrder180DayAgoAsync()
+        {
+            var currentTime = DateTimeOffset.Now;
+            var StatusFinish = _context.OrderStatuses.FirstOrDefault(o => o.Name == "Finish").Id;
+            var Order_Complete = await _context.Orders.Where(t => t.Updated >= currentTime.AddDays(-180) && t.OrderStatusId == StatusFinish).ToListAsync();
+            foreach (var item2 in Order_Complete)
+            {
+                _context.Orders.Remove(item2);
+            }
+            await _context.SaveChangesAsync();
+        }
+        public async Task<IActionResult> SuccessAsync()
+        {
+           
+            var applicationDbContext = await _context.Orders.Include(o => o.Category)
+                .Include(o => o.CustomUser)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.Item)
+                .OrderByDescending(o => o.Updated).ToListAsync();
             List<Order> orderList = new List<Order>();
             foreach (var item in applicationDbContext)
             {
@@ -127,24 +157,19 @@ namespace Online_market.Controllers
                     orderList.Add(item);
                 }
             }
-            var currentTime = DateTimeOffset.Now;
-            var StatusFinish = _context.OrderStatuses.FirstOrDefault(o => o.Name == "Finish").Id;
-            var Order_Complete = await _context.Orders.Where(t => t.Updated >= currentTime.AddDays(-180) && t.OrderStatusId == StatusFinish).ToListAsync();
-            foreach(var item2 in Order_Complete)
-            {
-                _context.Orders.Remove(item2);
-                await _context.SaveChangesAsync();
-            }
 
-            while (_context.Orders.Where(i => i.TrackingNumber == TrackingNumber).ToList().Count > 0)
-            {
-                RandomNumber = Enumerable.Range(0, 10)
-                                         .Select(i => new Tuple<int, int>(rand.Next(10), i))
-                                         .OrderBy(i => i.Item1)
-                                         .Select(i => i.Item2);
-                TrackingNumber = String.Join("", string.Join(";", RandomNumber).Split('@', ',', '.', ';', '\''));
-            }
-            var CartList = await _context.Cart.Where(i => i.CustomUserId == _userManager.GetUserId(User) && !i.IsSold).Include(i => i.Category).Include(i => i.CustomUser).ToListAsync();
+            await DeleteOrder180DayAgoAsync();
+
+            var TrackingNumber = CreateTrackingNumber();
+
+            var CartList = await _context.Cart.Where(i => i.CustomUserId == _userManager.GetUserId(User) && !i.IsSold)
+                .Include(i => i.Category)
+                .Include(i => i.CustomUser)
+                .ToListAsync();
+
+            var ReceivedStatus = _context.OrderStatuses.FirstOrDefault(o => o.Name == "Received").Id;
+            var user = await _userManager.FindByIdAsync(CartList.First().CustomUserId);
+            var currentTime = DateTimeOffset.Now;
             foreach (var items in CartList)
             {
                 //check if the price if change or not
@@ -154,8 +179,6 @@ namespace Online_market.Controllers
                 if (items.Price != CurrentPrice)
                 {
                     items.Price = CurrentPrice;
-                    _context.Update(items);
-                    await _context.SaveChangesAsync();
                 }
                 // change sold to true to make it disapear in the cart
                 items.IsSold = true;
@@ -165,33 +188,30 @@ namespace Online_market.Controllers
                 //update number of sold item
                 var item_of_shop = _context.Item.FirstOrDefault(i => i.Id == items.ItemId);
                 item_of_shop.Number_Of_Sold += 1;
+                await _canUserComment.AddUserToItemAsync(user.Id, items.ItemId);
                 _context.Update(item_of_shop);
                 await _context.SaveChangesAsync();
-            }
-            var ReceivedStatus = _context.OrderStatuses.FirstOrDefault(o => o.Name == "Received").Id;
-            var user = await _userManager.FindByIdAsync(CartList.First().CustomUserId);
-            foreach (var item in CartList)
-            {
+
                 Order newOrder = new Order
                 {
                     TrackingNumber = TrackingNumber,
-                    Name = item.Name,
-                    Price = item.Price,
-                    CustomUserId = item.CustomUserId,
-                    CategoryId = item.CategoryId,
-                    ItemId = item.ItemId,
-                    Quantity = item.Quantity,
+                    Name = items.Name,
+                    Price = items.Price,
+                    CustomUserId = items.CustomUserId,
+                    CategoryId = items.CategoryId,
+                    ItemId = items.ItemId,
+                    Quantity = items.Quantity,
                     IsSold = true,
-                    ImageData = item.ImageData,
-                    ContentType = item.ContentType,
-                    Date = DateTimeOffset.Now,
-                    Notes = item.Notes,
-                    Slug = item.Slug,
+                    ImageData = items.ImageData,
+                    ContentType = items.ContentType,
+                    Date = currentTime,
+                    Notes = items.Notes,
+                    Slug = items.Slug,
                     IsViewByOwner = false,
                     OrderStatusId = ReceivedStatus,
                     TrackingLink = "We are currently working on tracking link!",
-                    Created = DateTimeOffset.Now,
-                    Updated = DateTimeOffset.Now,
+                    Created = currentTime,
+                    Updated = currentTime,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     PhoneNumber = user.PhoneNumber,
@@ -204,8 +224,7 @@ namespace Online_market.Controllers
                 _context.Add(newOrder);
                 await _context.SaveChangesAsync();
             }
-  
-
+           
             var callbackUrl = Url.Action(
                                     "TrackOrderDetails",
                                     "Orders",
@@ -213,11 +232,11 @@ namespace Online_market.Controllers
                                     protocol: Request.Scheme);
 
             await _emailSender.SendEmailAsync(user.Email, "Lan's Market received your order",
-                $"<h1>You succescfully placed an order on Lan's Market at {(DateTimeOffset.Now).ToString("dd MMMM yyyy - hh:mm tt")}</h1> <br> <a style='background-color: #555555;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;' href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Clicking here to track your order</a>  <br> <h3>Your Tracking Number is: {TrackingNumber} </h3> <br>");
+                $"<h1>You succescfully placed an order on Lan's Market at {(currentTime).ToString("dd MMMM yyyy - hh:mm tt")}</h1> <br> <a style='background-color: #555555;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;' href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Clicking here to track your order</a>  <br> <h3>Your Tracking Number is: {TrackingNumber} </h3> <br>");
 
 
             await _emailSender.SendEmailAsync("arthastheking113@gmail.com", "New order has been placed at Lan's Market",
-               $"<h1>A new order have been placed at {(DateTimeOffset.Now).ToString("dd MMMM yyyy - hh:mm tt")}</h1> <br> <a style='background-color: #555555;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;' href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Clicking here to go to order</a>  <br> <h3>Tracking Number is: {TrackingNumber} </h3> <br>");
+               $"<h1>A new order have been placed at {(currentTime).ToString("dd MMMM yyyy - hh:mm tt")}</h1> <br> <a style='background-color: #555555;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px;' href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Clicking here to go to order</a>  <br> <h3>Tracking Number is: {TrackingNumber} </h3> <br>");
 
 
             ViewData["TrackingNumber"] = TrackingNumber;

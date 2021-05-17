@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Online_market.Data;
 using Online_market.Models;
+using Online_market.Services;
 
 namespace Online_market.Controllers
 {
@@ -15,11 +16,15 @@ namespace Online_market.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<CustomUser> _userManager;
+        private readonly ICanUserComment _canUserComment;
 
-        public CommentsController(ApplicationDbContext context, UserManager<CustomUser> userManager)
+        public CommentsController(ApplicationDbContext context, 
+            UserManager<CustomUser> userManager,
+            ICanUserComment canUserComment)
         {
             _context = context;
             _userManager = userManager;
+            _canUserComment = canUserComment;
         }
 
         // GET: Comments
@@ -68,9 +73,10 @@ namespace Online_market.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = _userManager.GetUserId(User);
                 var rateid_from_database = _context.Rate.FirstOrDefault(r => r.Value == comment.RateId).Id;
                 comment.RateId = rateid_from_database;
-                comment.CustomUserId = _userManager.GetUserId(User);
+                comment.CustomUserId = userId;
                 comment.Date = DateTime.Now;
                 _context.Add(comment);
                 await _context.SaveChangesAsync();
@@ -79,6 +85,7 @@ namespace Online_market.Controllers
                 var rateValue = ((_context.Comment.Where(i => i.ItemId == comment.ItemId).Include(i => i.Rate).Include(i => i.Item).Select(i => i.Rate).Select(i => i.Value).ToList().Sum(x => Convert.ToDouble(x)) + 5) / Convert.ToDouble(item.Comments.Count + 1));
                 //var rateValue = (item.Comments.Select(x => x.Rate).Select(i => i.Value).ToList().Sum(x => Convert.ToDouble(x)))/ Convert.ToDouble(item.Comments.Count);
                 item.RateValue = rateValue;
+                await _canUserComment.RemoveUserFromItemAsync(userId, comment.ItemId);
                 _context.Update(item);
                 await _context.SaveChangesAsync();
                 var slug = item.Slug;

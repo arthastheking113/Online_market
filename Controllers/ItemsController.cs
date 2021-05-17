@@ -200,7 +200,7 @@ namespace Online_market.Controllers
             _context.Update(item);
             await _context.SaveChangesAsync();
             ViewData["AttachmentType"] = new SelectList(_context.ItemAttachmentTypes, "Id", "Name");
-
+            ViewData["UserId"] = _userManger.GetUserId(User);
             string IpAdress = _userDetector.GetUserIpAdress();
             string connectionId = _userDetector.GetUserConnectionId();
             if (!_signInManager.IsSignedIn(User))

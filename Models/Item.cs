@@ -53,6 +53,8 @@ namespace Online_market.Models
 
         public virtual ICollection<ItemAttachment> Attachments { get; set; } = new HashSet<ItemAttachment>();
 
+        public virtual ICollection<CustomUser> CustomUsers { get; set; } = new HashSet<CustomUser>();
+
         public Item()
         {
 

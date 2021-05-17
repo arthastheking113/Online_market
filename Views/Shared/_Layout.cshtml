@@ -304,7 +304,7 @@
                             float Item_total_price = 0;
                             @if (number_of_item == 0)
                             {
-                                <a class="ps-cart__toggle" asp-controller="Carts" asp-action="Index"><i class="ps-icon-shopping-cart"></i></a>
+                                <a class="ps-cart__toggle" asp-controller="Carts" asp-action="Index" id="total_item_of_shoppping_cart"><i class="ps-icon-shopping-cart"></i></a>
                             }
                             else
                             {
@@ -370,10 +370,9 @@
                         {
                             <a class="ps-cart__toggle" asp-controller="Carts" asp-action="Index"><i class="ps-icon-shopping-cart"></i></a>
                             <div class="ps-cart__listing">
-
                                 <div class="ps-cart__total">
-                                    <p>Number of items:<span>0</span></p>
-                                    <p>Item Total:<span>$0</span></p>
+                                    <p>Number of items:<span id="number_of_quantity2">0</span></p>
+                                    <p>Item Total:<span id="total-price-checkout2">$0</span></p>
                                 </div>
                                 <div class="ps-cart__footer"><a class="ps-btn" asp-controller="Carts" asp-action="Index">Check out<i class="ps-icon-arrow-left"></i></a></div>
                             </div>

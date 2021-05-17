@@ -172,7 +172,7 @@
                     }
 
 
-                    <script>
+                <script>
                             function plusOne() {
                                 let quantity = parseFloat(document.getElementById('quantity-@Model.Id').value) + 1;
                                 document.getElementById('quantity-@Model.Id').value = quantity;
@@ -193,15 +193,30 @@
                                     showConfirmButton: false,
                                     timer: 1200
                                 })
-                                setTimeout(function () {
-                                    document.getElementById("addToCartForm").submit();
-                                    }, 1000);
+                                let quantity = parseFloat(document.getElementById('quantity-@Model.Id').value);
+                                var url = `/Carts/AddItem/@Model.Id?quantity=${quantity}`;
+                                $.post(url).then(function (response) {
+                                    document.getElementById('Cart-left-corner').innerHTML += `<div class="ps-cart-item" id="cart-Item-@Model.Id">
+                                            <div class="ps-cart-item__thumbnail"><a asp-controller="Items" asp-action="Details" asp-route-slug="@Model.Slug"></a><img src="${response.image}" alt=""></div>
+                                            <div class="ps-cart-item__content">
+                                                <a class="ps-cart-item__title" asp-controller="Items" asp-action="Details" asp-route-slug="@Model.Slug">@Model.Name</a>
+                                                <a class="ps-cart-item__title" asp-controller="Items" asp-action="Details" asp-route-slug="@Model.Slug">Price : $${response.listPrice}</a>
+                                                <p><span>Quantity:<i id="quantity-@(Model.Id)-Cart">${response.quantity}</i></span><span>Total:<i>$${response.totalPrice}</i></span></p>
+                                            </div>
+                                        </div>`;
+                                    document.getElementById('total_item_of_shoppping_cart').innerHTML = `<span><i id='number_of_quantity'>${response.totalItem}</i></span><i class="ps-icon-shopping-cart"></i>`;
+                                    document.getElementById('number_of_quantity2').innerText = response.totalItem;
+                                    document.getElementById('total-price-checkout2').innerText = response.totalCartPrice;
+
+                                });
+
+
                             };
 
                             document.getElementById('plus-button-@Model.Id').addEventListener('click', plusOne)
                             document.getElementById('minus-button-@Model.Id').addEventListener('click', minusOne)
                             document.getElementById('AddToCart-button-@Model.Id').addEventListener('click', AddItem)
-                    </script>
+                </script>
                 </div>
                 <div class="clearfix"></div>
                 <div class="ps-product__content mt-50">

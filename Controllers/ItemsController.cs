@@ -180,6 +180,15 @@ namespace Online_market.Controllers
 
             return View(featureItemList);
         }
+
+        public JsonResult AddItemToCard()
+        {
+            var result = new ItemModel();
+           
+            return Json(result);
+        }
+
+
         // GET: Items/Details/5
         public async Task<IActionResult> Details(string slug)
         {

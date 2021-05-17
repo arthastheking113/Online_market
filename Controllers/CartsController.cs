@@ -24,13 +24,15 @@ namespace Online_market.Controllers
         private readonly ICreateTemporaryUser _createTemporaryUser;
         private readonly IUserDetector _userDetector;
         private readonly ILogger<CartsController> _logger;
+        private readonly IImageService _imageService;
 
         public CartsController(ApplicationDbContext context, 
             UserManager<CustomUser> userManger, 
             SignInManager<CustomUser> signInManager,
             ICreateTemporaryUser createTemporaryUser,
             IUserDetector userDetector,
-            ILogger<CartsController> logger)
+            ILogger<CartsController> logger,
+            IImageService imageService)
         {
             _context = context;
             _userManger = userManger;
@@ -38,6 +40,7 @@ namespace Online_market.Controllers
             _createTemporaryUser = createTemporaryUser;
             _userDetector = userDetector;
             _logger = logger;
+            _imageService = imageService;
         }
 
         // GET: Carts
@@ -45,6 +48,7 @@ namespace Online_market.Controllers
         {
 
             var applicationDbContext = await _context.Cart.Where(i => i.CustomUserId == _userManger.GetUserId(User) && !i.IsSold).Include(i => i.Category).Include(i => i.CustomUser).ToListAsync();
+            decimal total = 0;
             foreach (var item in applicationDbContext)
             {
                 var itemId = _context.Item.FirstOrDefault(i => i.Id == item.ItemId).ItemSaleOffId;
@@ -55,12 +59,10 @@ namespace Online_market.Controllers
                     _context.Update(item);
                     await _context.SaveChangesAsync();
                 }
-            }
-            decimal total = 0;
-            foreach (var item in applicationDbContext)
-            {
                 total += Convert.ToDecimal(item.Price) * Convert.ToDecimal(item.Quantity);
             }
+         
+        
             int[] IdArray = new int[applicationDbContext.Count];
             List<int> id_Of_each_Item = applicationDbContext.Select(c => c.Id).ToList();
             for (int runs = 0; runs < applicationDbContext.Count; runs++)
@@ -141,19 +143,19 @@ namespace Online_market.Controllers
             }
             return Json(IdArray);
         }
-        public async Task<IActionResult> AddItemAsync(int itemId, int quantity)
+        public async Task<JsonResult> AddItemAsync(int id, int quantity)
         {
-            var itemInStock = _context.Item.FirstOrDefault(i => i.Id == itemId);
+            var itemInStock = _context.Item.FirstOrDefault(i => i.Id == id);
 
-            var number_of_some_item = (await _context.Cart.Where(i => i.CustomUserId == _userManger.GetUserId(User) && !i.IsSold && i.ItemId == itemId).Include(i => i.Category).Include(i => i.CustomUser).ToListAsync()).Count;
+            var number_of_some_item = (await _context.Cart.Where(i => i.CustomUserId == _userManger.GetUserId(User) && !i.IsSold && i.ItemId == id).Include(i => i.Category).Include(i => i.CustomUser).ToListAsync()).Count;
             if (number_of_some_item == 0)
             {
                 if (quantity > 0)
                 {
-                    Cart newCart = new Cart
+                        Cart newCart = new Cart
                     {
                         Name = itemInStock.Name,
-                        ItemId = itemId,
+                        ItemId = id,
                         Quantity = quantity,
                         Price = itemInStock.ListPrice(_context, itemInStock.Price, itemInStock.ItemSaleOffId),
                         CategoryId = itemInStock.CategoryId,
@@ -165,14 +167,13 @@ namespace Online_market.Controllers
                     _context.Add(newCart);
                     await _context.SaveChangesAsync();
                     var slug = itemInStock.Slug;
-                    return RedirectToAction("Details","Items", new { slug = slug });
                 }
                 else
                 {
                     Cart newCart = new Cart
                     {
                         Name = itemInStock.Name,
-                        ItemId = itemId,
+                        ItemId = id,
                         Quantity = 1,
                         Price = itemInStock.ListPrice(_context, itemInStock.Price, itemInStock.ItemSaleOffId),
                         CategoryId = itemInStock.CategoryId,
@@ -184,7 +185,6 @@ namespace Online_market.Controllers
                     _context.Add(newCart);
                     await _context.SaveChangesAsync();
                     var slug = newCart.Slug;
-                    return RedirectToAction("Details", "Items", new { slug = slug });
                 }                                
             }
             else
@@ -197,15 +197,52 @@ namespace Online_market.Controllers
                         .Include(i => i.Category)
                         .Include(i => i.CustomUser)
                         .Include(i => i.Item)
-                        .FirstOrDefaultAsync(m => m.ItemId == itemId);
+                        .FirstOrDefaultAsync(m => m.ItemId == id);
 
                 Item.Quantity += quantity;
                 _context.Update(Item);
                 await _context.SaveChangesAsync();
                 var slug = Item.Slug;
-                return RedirectToAction("Details", "Items", new { slug = slug });
             }
 
+
+            var applicationDbContext = await _context.Cart.Where(i => i.CustomUserId == _userManger.GetUserId(User) && !i.IsSold).Include(i => i.Category).Include(i => i.CustomUser).ToListAsync();
+
+            decimal total = 0;
+            var totalItemInCart = 0;
+            foreach (var item in applicationDbContext)
+            {
+                var itemId = _context.Item.FirstOrDefault(i => i.Id == item.ItemId).ItemSaleOffId;
+                var CurrentPrice = _context.Item.FirstOrDefault(i => i.Id == item.ItemId).ListPrice(_context, item.Price, itemId);
+                if (item.Price != CurrentPrice)
+                {
+                    item.Price = CurrentPrice;
+                    _context.Update(item);
+                    await _context.SaveChangesAsync();
+                }
+                totalItemInCart += item.Quantity;
+                total += Convert.ToDecimal(item.Price) * Convert.ToDecimal(item.Quantity);
+            }
+  
+
+
+            total += 15;
+            decimal faxFee = total * 7 / 100;
+            decimal TotalGrand = total + faxFee;
+
+
+            var result = new ItemModel();
+            result.name = itemInStock.Name;
+            result.price = itemInStock.Price;
+            result.quantity = quantity;
+            result.listPrice = (itemInStock.ListPrice(_context, itemInStock.Price, itemInStock.ItemSaleOffId)).ToString();
+            result.image = _imageService.DecodeFileForCart(itemInStock.ImageData, itemInStock.ContentType);
+            result.totalPrice = (Convert.ToDecimal(itemInStock.Price) * Convert.ToDecimal(quantity)).ToString("0.##");
+            result.totalItem = totalItemInCart.ToString();
+            result.totalCartPrice = TotalGrand.ToString();
+
+            result.javascriptCode = "<script>function RemoveItem(){var url = '/Carts/DeleteItem/" + $"{id}'" + ";$.post(url).then(function(response) {document.getElementById('number_of_quantity2').innerText = `${ response[1]}`;document.getElementById('number_of_quantity').innerText = `${ response[1]}`;document.getElementById('total-price-checkout2').innerText = `$${ response[0]}`;document.getElementById('total-price-checkout').innerText = `$${ response[0]}`;document.getElementById('taxFee').innerHTML = `$${ response[2]}`;});document.getElementById('cart-Item-" + $"{id}" + "').style.display = 'none';document.getElementById('cart-item2-" + $"{id}" + "').style.display = 'none';};document.getElementById('Remove-Item-Button-" + $"{id}" + "').addEventListener('click', RemoveItem)</script>";
+            return Json(result);
         }
 
         public async Task UpdateItemAsync(int id, int value)
